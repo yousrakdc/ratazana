@@ -3,16 +3,21 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 
 
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=150, unique=True, blank=True, null=True)  # Remove username field if not used
+    email = models.EmailField(unique=True)  # Ensure email is unique
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []  # Set required fields if any
+
     groups = models.ManyToManyField(
         Group,
-        related_name='core_user_set',  # Custom related name
+        related_name='core_user_set',  
         blank=True,
         help_text='The groups this user belongs to.',
         related_query_name='core_user'
     )
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name='core_user_set',  # Custom related name
+        related_name='core_user_set',  
         blank=True,
         help_text='Specific permissions for this user.',
         related_query_name='core_user'

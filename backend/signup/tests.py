@@ -2,10 +2,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from core.models import CustomUser
+from allauth.account.models import EmailAddress
 
 class UserSignUpTest(APITestCase):
     def setUp(self):
         self.signup_url = reverse('custom_signup')
+        self.login_url = reverse('login')
         self.valid_user_data = {
             'username': 'testuser',
             'email': 'testuser@example.com',
@@ -42,3 +44,26 @@ class UserSignUpTest(APITestCase):
         response = self.client.post(self.signup_url, invalid_password_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('Ensure this field has at least 8 characters.', response.data.get('password1', ''))
+
+    def test_login_success(self):
+        user = CustomUser.objects.create_user(username='loginuser', email='loginuser@example.com', password='password123')
+        EmailAddress.objects.create(user=user, email='loginuser@example.com', verified=True)  # Email verified
+        data = {'email': 'loginuser@example.com', 'password': 'password123'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+
+    def test_login_with_wrong_password(self):
+        user = CustomUser.objects.create_user(username='loginuser', email='loginuser@example.com', password='password123')
+        EmailAddress.objects.create(user=user, email='loginuser@example.com', verified=True)  # Email verified
+        data = {'email': 'loginuser@example.com', 'password': 'wrongpassword'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_with_unverified_email(self):
+        user = CustomUser.objects.create_user(username='loginuser', email='loginuser@example.com', password='password123')
+        # No email verification
+        data = {'email': 'loginuser@example.com', 'password': 'password123'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Email is not verified', response.data['detail'])
