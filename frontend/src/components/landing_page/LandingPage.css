@@ -1,0 +1,63 @@
+/* LandingPage.css */
+.landing-page {
+    width: 100%;
+  }
+  
+  /* Promoted Section */
+  .promoted-section {
+    padding: 2rem 1rem;
+  }
+  
+  .promoted-jerseys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+  }
+  
+  .jersey-card {
+    flex: 1 1 30%;
+    max-width: 30%;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .jersey-card img {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+  
+  .jersey-card h3 {
+    margin: 0.5rem 0;
+    font-size: 1.2rem;
+  }
+  
+  /* Carousel Sections */
+  .new-releases-section, .upcoming-section {
+    padding: 2rem 1rem;
+  }
+  
+  .swiper {
+    padding: 1rem 0;
+  }
+  
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+  }
+  
+  @media (max-width: 768px) {
+    .promoted-jerseys {
+      flex-direction: column;
+    }
+  
+    .jersey-card {
+      max-width: 100%;
+    }
+  
+    .swiper-slide {
+      width: 80%;
+    }
+  }
+  

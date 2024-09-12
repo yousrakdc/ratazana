@@ -1,0 +1,36 @@
+/* src/components/JerseyCard.css */
+.jersey-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: #fff;
+  }
+  
+  .jersey-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .jersey-details {
+    padding: 16px;
+  }
+  
+  .team-name {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  .price {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .jersey-card {
+      margin: 10px;
+    }
+  }
+  
