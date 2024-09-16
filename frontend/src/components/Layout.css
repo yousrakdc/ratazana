@@ -10,7 +10,7 @@
 header {
   color: #ffffff;
   padding: 1rem;
-  display: flex; /* Use flex to ensure proper alignment */
+  display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -26,9 +26,9 @@ header {
 }
 
 .logo img {
-  width: 190px; /* Adjust the width to your preference */
-  height: auto; /* Keeps the aspect ratio intact */
-  max-width: 100%; /* Ensures the logo is responsive and doesn’t overflow */
+  width: 190px;
+  height: auto;
+  max-width: 100%;
 }
 
 /* Search bar */
@@ -47,7 +47,7 @@ header {
   border-radius: 10px;
   height: 30px;
   width: 15rem;
-  max-width: 100%; /* Ensure input does not overflow */
+  max-width: 100%;
 }
 
 .search__input::placeholder {
