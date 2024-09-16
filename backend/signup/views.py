@@ -63,5 +63,4 @@ class LoginView(APIView):
             
             return response
         except Exception as e:
-            # Optionally log the exception here
             return JsonResponse({'detail': 'Token generation failed'}, status=500)
