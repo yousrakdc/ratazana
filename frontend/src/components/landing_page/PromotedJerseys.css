@@ -1,37 +1,13 @@
 .promoted-jerseys {
-  max-width: 100%; /* Ensure the slider fits within its container */
-  margin: 0 auto; /* Center the slider if needed */
-  padding: 20px; /* Adjust padding as needed */
-  overflow: hidden; /* Hide any overflow from large images */
-}
-
-.jersey-card {
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 100%; /* Full width of the slider item */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 300;
 }
 
 .slick-slide {
   display: flex;
-  justify-content: center; /* Center the slide content */
-  align-items: center; /* Vertically center the content */
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Ensures all slides take the full height */
 }
-
-.jersey-card img {
-  width: 100%; /* Ensure images fit within their container */
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 8px;
-  display: block; /* Prevent extra space below images */
-}
-
-.jersey-card h3 {
-  margin: 10px 0;
-  font-size: 1.1rem;
-}
-  
-.jersey-card p {
-  color: #777;
- }

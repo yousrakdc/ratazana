@@ -1,7 +1,8 @@
 import React from 'react';
 import SignUpForm from './components/auth/SignUpForm';
 import SignInForm from './components/auth/SignInForm';
-import 'swiper/swiper.min.css';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 
 function App() {

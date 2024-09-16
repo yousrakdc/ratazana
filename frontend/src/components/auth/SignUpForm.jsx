@@ -18,7 +18,6 @@ function SignupForm() {
         password1,
         password2
       });
-      // Handle successful signup (e.g., redirect, show a message)
       console.log('Signup successful:', response.data);
     } catch (error) {
       setErrors(error.response.data);

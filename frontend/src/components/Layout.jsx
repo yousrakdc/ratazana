@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Layout.css';
+import './jerseys/JerseyCard.css';
+import logo from './landing_page/images/logo.png';
 
 const Layout = ({ children }) => {
   return (
     <div className="layout">
       <header>
         <div className="logo">
-          <Link to="/">Ratazana</Link>
+          <Link to="/">
+            <img src={logo} alt="Ratazana" className="logo-image" />
+            </Link>
         </div>
         <div className="search">
             <input placeholder="Search" className="search__input" type="text" />
@@ -28,9 +32,7 @@ const Layout = ({ children }) => {
             </div>
 
         <nav className="menu">
-          <Link to="/">Home</Link>
-          <Link to="/jerseys">Jerseys</Link>
-          <Link to="/about">About</Link>
+          <Link to="/jerseys">Shop</Link>
           <Link to="/signup">Sign Up</Link>
           <Link to="/login">Sign In</Link>
         </nav>

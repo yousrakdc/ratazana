@@ -8,6 +8,7 @@ const JerseyList = ({ jerseys }) => {
         <JerseyCard key={jersey.id} jersey={jersey} />
       ))}
     </div>
+    
   );
 };
 

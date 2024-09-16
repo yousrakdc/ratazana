@@ -3,6 +3,7 @@ import PromotedJerseys from './PromotedJerseys';
 import NewReleases from './NewReleases';
 import UpcomingJerseys from './UpcomingJerseys';
 import './LandingPage.css';
+import '../jerseys/JerseyCard.css';
 
 const LandingPage = () => {
   return (
@@ -10,7 +11,6 @@ const LandingPage = () => {
 
       {/* Promoted Jerseys Section */}
       <section className="promoted-section">
-        <h2>Promoted Jerseys</h2>
         <PromotedJerseys />
       </section>
 
@@ -22,7 +22,7 @@ const LandingPage = () => {
 
       {/* Upcoming Jerseys Section (Carousel) */}
       <section className="upcoming-section">
-        <h2>Upcoming Jerseys</h2>
+        <h2>Worth the wait...</h2>
         <UpcomingJerseys />
       </section>
     </div>

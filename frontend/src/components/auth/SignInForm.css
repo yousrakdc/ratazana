@@ -1,95 +1,142 @@
-.signin-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 1em;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+body, html {
+  height: 100%;
+  margin: 0;
 }
 
-.signin-form div {
-  margin-bottom: 1em;
-}
-
-.signin-form label {
-  margin-bottom: .5em;
-  color: #fff;
-  display: block;
-}
-
-.signin-form input {
-  border: 1px solid #ccc;
-  padding: .5em;
-  font-size: 1em;
-  width: 100%;
-}
-
-/* From Uiverse.io by satyamchaudharydev */ 
-button {
-  --primary-color: #645bff;
-  --secondary-color: #fff;
-  --hover-color: #111;
-  --arrow-width: 10px;
-  --arrow-stroke: 2px;
-  box-sizing: border-box;
-  border: 0;
-  border-radius: 20px;
-  color: var(--secondary-color);
-  padding: 1em 1.8em;
-  background: var(--primary-color);
-  display: flex;
-  transition: 0.2s background;
-  align-items: center;
-  gap: 0.6em;
-  font-weight: bold;
-}
-
-button .arrow-wrapper {
+.main-container { /* New wrapper div */
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh; /* Full viewport height */
 }
 
-button .arrow {
-  margin-top: 1px;
-  width: var(--arrow-width);
-  background: var(--primary-color);
-  height: var(--arrow-stroke);
-  position: relative;
-  transition: 0.2s;
+.form-container {
+  width: 800px;
+  border-radius: 0.75rem;
+  background: rgba(59, 55, 155, 0.15);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(67,62,238,0.075);
+  padding: 2rem;
+  color: rgba(243, 244, 246, 1);
+  margin: 0 auto;
 }
 
-button .arrow::before {
-  content: "";
-  box-sizing: border-box;
-  position: absolute;
-  border: solid var(--secondary-color);
-  border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
-  display: inline-block;
-  top: -3px;
-  right: 3px;
-  transition: 0.2s;
-  padding: 3px;
-  transform: rotate(-45deg);
+.title {
+  text-align: left;
+  font-size: 4rem;
+  line-height: 2rem;
+  font-weight: 700;
 }
 
-button:hover {
-  background-color: var(--hover-color);
+.form {
+  margin-top: 1.5rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+
 }
 
-button:hover .arrow {
-  background: var(--secondary-color);
+.input-group {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
-button:hover .arrow:before {
-  right: 0;
+.input-group label {
+  display: block;
+  color: rgb(255, 255, 255);
+  margin-bottom: 4px;
 }
 
-.signin-form p {
-  color: red;
-  font-size: 0.9em;
+.input-group input {
+  width: 100%;
+  border-radius: 0.5rem;
+  outline: 0;
+  background: rgba(59, 55, 155, 0.15);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(67,62,238,0.075);
+  padding: 0.75rem 1rem;
 }
 
-p {
-  margin: 10px 0;
+.input-group input:focus {
+  border-color: rgba(167, 139, 250);
 }
 
+.forgot {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  color: rgba(156, 163, 175,1);
+  margin: 8px 0 14px 0;
+}
+
+.forgot a,.signup a {
+  color: rgba(243, 244, 246, 1);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot a:hover, .signup a:hover {
+  text-decoration: underline rgba(167, 139, 250, 1);
+}
+
+.sign {
+  display: block;
+  max-width: 500px; /* Optional: Set a max-width */
+  margin: 1rem auto; /* Center the button horizontally and add some spacing */
+  background-color: rgba(167, 139, 250, 1);
+  padding: 0.75rem;
+  text-align: center;
+  color: rgb(36, 28, 102);
+  border: none;
+  border-radius: 1rem;
+  font-weight: 600;
+}
+
+.social-message {
+  display: flex;
+  align-items: center;
+  padding-top: 1rem;
+}
+
+.line {
+  height: 1px;
+  flex: 1 1 0%;
+  background-color: rgb(163, 127, 206);
+}
+
+.social-message .message {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.25rem;
+  color: rgb(255, 255, 255);
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+}
+
+.social-icons .icon {
+  border-radius: 0.125rem;
+  padding: 0.75rem;
+  border: none;
+  background-color: transparent;
+  margin-left: 8px;
+}
+
+.social-icons .icon svg {
+  height: 1.25rem;
+  width: 1.25rem;
+  fill: #fff;
+}
+
+.signup {
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1rem;
+  color: rgb(247, 250, 255);
+}

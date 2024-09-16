@@ -1,151 +1,128 @@
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  /* Layout container */
-  .layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    width: 100%;
-  }
-  
-  /* Header */
+/* Layout container */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Header */
+header {
+  color: #ffffff;
+  padding: 1rem;
+  display: flex; /* Use flex to ensure proper alignment */
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+/* Logo */
+.logo {
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 190px; /* Adjust the width to your preference */
+  height: auto; /* Keeps the aspect ratio intact */
+  max-width: 100%; /* Ensures the logo is responsive and doesn’t overflow */
+}
+
+/* Search bar */
+.search {
+  display: flex;
+  align-items: center;
+}
+
+.search__input {
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  background: rgba(150, 107, 188, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(150, 107, 188, 0.25);
+  padding: 5px 10px;
+  border-radius: 10px;
+  height: 30px;
+  width: 15rem;
+  max-width: 100%; /* Ensure input does not overflow */
+}
+
+.search__input::placeholder {
+  color: #fff;
+  font-size: 14px;
+}
+
+.search__button {
+  background: rgba(150, 107, 188, 0.5);
+  border: 1px solid rgba(150, 107, 188, 0.25);
+  padding: 5px 10px;
+  margin-left: 0.5rem;
+  border-radius: 10px;
+}
+
+.search__button:hover {
+  cursor: pointer;
+}
+
+/* Main content */
+main {
+  flex: 1;
+  padding: 1rem;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* Footer */
+footer {
+  color: #ffffff;
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   header {
-    color: rgba(255, 255, 255, 0.87);
-  
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px; /* Constrains header width on large screens */
-    margin: 0 auto; /* Centers the header horizontally */
-    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  /* Logo */
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  /* Search bar */
+
   .search {
-    display: flex;
-    align-items: center;
-    text-align: center;
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: space-between;
   }
-  
+
   .search__input {
-    font-family: "judson";
-    font-size: 1rem;
-    background: rgba(150, 107, 188, 0.5);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(150, 107, 188, 0.25);
-    padding: 5px 10px;
-    border-radius: 10px;
-    height: 30px;
-    width: 15rem;
+    width: 100%;
+    margin-right: 0;
   }
-  
-  .search__input::placeholder {
-    color: #fff;
-    font-size: 14px;
-  }
-  
-  .search__button {
-    background: rgba(150, 107, 188, 0.5);
-    border: 1px solid rgba(150, 107, 188, 0.25);
-    padding: 5px 10px;
-    margin-left: 0.5rem;
-    border-radius: 10px;
-  }
-  
-  .search__button:hover {
-    cursor: pointer;
-  }
-  
-  .search input:focus {
-    outline: none;
-  }
-  
-  /* Menu */
+
   .menu {
-    display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
   }
-  
+
   .menu a {
-    color: white;
-    text-decoration: none;
-    font-size: 1rem;
+    padding: 0.5rem 0;
   }
-  
-  /* Main content */
-  main {
-    flex: 1;
-    padding: 1rem;
-    width: 100%;
-    max-width: 1200px; /* Limits the width of the content on large screens */
-    margin: 0 auto; /* Centers the main content */
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.2rem;
   }
-  
-  /* Footer */
-  footer {
-    color: white;
-    text-align: center;
-    padding: 1rem;
+
+  .search__input {
     width: 100%;
   }
-  
-  /* Responsive Design */
-  
-  /* Tablets and smaller devices */
-  @media (max-width: 768px) {
-    header {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1rem;
-    }
-  
-    .search {
-      margin-top: 1rem;
-      width: 100%;
-      justify-content: space-between;
-    }
-  
-    .search__input {
-      width: 100%;
-      margin-right: 0;
-    }
-  
-    .menu {
-      flex-direction: column;
-      width: 100%;
-      margin-top: 1rem;
-    }
-  
-    .menu a {
-      padding: 0.5rem 0;
-    }
+
+  .menu a {
+    font-size: 0.9rem;
   }
-  
-  /* Mobile devices */
-  @media (max-width: 480px) {
-    .logo {
-      font-size: 1.2rem;
-    }
-  
-    .search__input {
-      width: 100%;
-    }
-  
-    .menu a {
-      font-size: 0.9rem;
-    }
-  }
-  
+}

@@ -3,12 +3,16 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './PromotedJerseys.css';
+import '../jerseys/JerseyCard.css';
+import jersey1 from './images/jersey1.png';
+import jersey2 from './images/jersey2.png';
+import jersey3 from './images/jersey3.png';
+
 
 const jerseys = [
-  { id: 1, name: 'Promoted Jersey 1', image: '/images/jersey1.jpg', price: '$50' },
-  { id: 2, name: 'Promoted Jersey 2', image: '/images/jersey2.jpg', price: '$60' },
-  { id: 2, name: 'Promoted Jersey 3', image: '/images/jersey3.jpg', price: '$100' },
-  { id: 2, name: 'Promoted Jersey 4', image: '/images/jersey3-4.jpg', price: '$160' },
+  { id: 1, name: 'Promoted Jersey 1', image: jersey1, price: '$50' },
+  { id: 2, name: 'Promoted Jersey 2', image: jersey2, price: '$60' },
+  { id: 2, name: 'Promoted Jersey 3', image: jersey3, price: '$100' },
 ];
 
 const PromotedJerseys = () => {
@@ -19,29 +23,15 @@ const PromotedJerseys = () => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
   };
 
 
   return (
-    <div className="promoted-jerseys">
       <Slider {...settings}>
         {jerseys.map(jersey => (
-          <div className="jersey-card" key={jersey.id}>
             <img src={jersey.image} alt={jersey.name} />
-            <h3>{jersey.name}</h3>
-            <p>{jersey.price}</p>
-          </div>
         ))}
       </Slider>
-    </div>
   );
 };
 

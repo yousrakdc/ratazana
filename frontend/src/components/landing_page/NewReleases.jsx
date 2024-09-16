@@ -2,13 +2,17 @@ import React from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import './NewReleases.css'; // Ensure this file contains your CSS for styling
+import '../jerseys/JerseyCard.css';
+import new1 from './images/new1.jpg';
+import new2 from './images/new2.jpeg';
+import new3 from './images/new3.jpeg';
+import new4 from './images/new4.jpeg';
 
 const newReleasesData = [
-  { id: 1, name: 'New Jersey 1', image: '/images/new1.jpg', price: '$70' },
-  { id: 2, name: 'New Jersey 2', image: '/images/new2.jpg', price: '$75' },
-  { id: 3, name: 'New Jersey 3', image: '/images/new3.jpg', price: '$75' },
-  { id: 4, name: 'New Jersey 4', image: '/images/new4.jpg', price: '$75' },
+  { id: 1, name: 'New Jersey 1', image: new1, price: '$70' },
+  { id: 2, name: 'New Jersey 2', image: new2, price: '$75' },
+  { id: 3, name: 'New Jersey 3', image: new3, price: '$75' },
+  { id: 4, name: 'New Jersey 4', image: new4, price: '$75' },
 ];
 
 const NewReleases = () => {
