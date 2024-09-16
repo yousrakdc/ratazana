@@ -51,7 +51,8 @@ class UserSignUpTest(APITestCase):
         data = {'email': 'loginuser@example.com', 'password': 'password123'}
         response = self.client.post(self.login_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        self.assertIn('access', response.cookies)
+        self.assertIn('refresh', response.cookies)
 
     def test_login_with_wrong_password(self):
         user = CustomUser.objects.create_user(username='loginuser', email='loginuser@example.com', password='password123')
@@ -60,10 +61,30 @@ class UserSignUpTest(APITestCase):
         response = self.client.post(self.login_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_login_with_missing_email(self):
+        data = {'password': 'password123'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Email and password are required', response.json().get('detail', ''))
+
+    def test_login_with_missing_password(self):
+        data = {'email': 'loginuser@example.com'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Email and password are required', response.json().get('detail', ''))
+
     def test_login_with_unverified_email(self):
         user = CustomUser.objects.create_user(username='loginuser', email='loginuser@example.com', password='password123')
         # No email verification
         data = {'email': 'loginuser@example.com', 'password': 'password123'}
         response = self.client.post(self.login_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('Email is not verified', response.data['detail'])
+        self.assertIn('Email is not verified', response.json().get('detail', ''))
+
+    def test_login_with_invalid_email_format(self):
+        data = {'email': 'invalidemail', 'password': 'password123'}
+        response = self.client.post(self.login_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)  # Adjusted to match the updated view
+        self.assertIn('Invalid email format', response.json().get('detail', ''))
+
+

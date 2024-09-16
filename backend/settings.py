@@ -84,6 +84,11 @@ ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 
+# Use cookies for session management
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'urls'
 SITE_ID = 1
@@ -176,7 +181,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.CustomUser'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # URL where your React app will run
+    "http://localhost:5173",  # URL where your React app will run
 ]
 
 INTERNAL_IPS = [
