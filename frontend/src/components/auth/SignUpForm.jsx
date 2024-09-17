@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './SignUpForm.css';
 
-function SignupForm() {
+function SignUpForm() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password1, setPassword1] = useState('');
@@ -73,4 +73,4 @@ function SignupForm() {
   );
 }
 
-export default SignupForm;
+export default SignUpForm;
