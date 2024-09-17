@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'signup',
     'rest_framework_simplejwt',
+    'jerseys',
 ]
 
 
