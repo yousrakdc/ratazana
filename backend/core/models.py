@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)  # Remove username field if not used
     email = models.EmailField(unique=True)  # Ensure email is unique
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []  # Set required fields if any
 
     groups = models.ManyToManyField(
