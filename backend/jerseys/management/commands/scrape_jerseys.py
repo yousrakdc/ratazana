@@ -9,9 +9,11 @@ class Command(BaseCommand):
 
     async def scrape_website(self):
         # Launch headless browser
-        browser = await launch(headless=True, executablePath='/usr/bin/chromium-browser', args=['--no-sandbox', '--disable-setuid-sandbox'])
-
-
+        browser = await launch(
+            headless=True,
+            executablePath='/usr/bin/chromium',
+            args=['--no-sandbox', '--disable-setuid-sandbox']
+        )
 
         page = await browser.newPage()
 
