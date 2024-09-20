@@ -56,3 +56,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         asyncio.get_event_loop().run_until_complete(self.scrape_website())
+
