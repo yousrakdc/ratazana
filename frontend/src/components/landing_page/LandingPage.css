@@ -1,0 +1,23 @@
+  
+  .swiper {
+    padding: 1rem 0;
+  }
+  
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+  }
+  
+  @media (max-width: 768px) {
+    .promoted-jerseys {
+      flex-direction: column;
+    }
+  
+    .jersey-card {
+      max-width: 100%;
+    }
+  
+    .swiper-slide {
+      width: 80%;
+    }
+  }

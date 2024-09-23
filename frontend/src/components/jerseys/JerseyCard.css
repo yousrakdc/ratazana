@@ -1,0 +1,39 @@
+.jersey-card {
+    width: 500px;
+    height: 304px;
+    border-radius: 30px;
+    background: rgba(171,129,205,0.5);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(171,129,205,0.25);
+    margin: 10px;
+    box-shadow: 15px 15px 30px rgb(25, 25, 25),
+                -15px -15px 30px rgb(55, 16, 84);
+    
+   }
+    
+    .jersey-image {
+      width: 100%;
+      height: 40%;
+    }
+    
+    .jersey-details {
+      padding: 10px;
+    }
+    
+    .team-name {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    
+    .price {
+      font-size: 1rem;
+      color: #ffff;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .jersey-card {
+        margin: 10px;
+      }
+    }
