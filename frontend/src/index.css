@@ -5,10 +5,14 @@
   width: 100%;
 
   color-scheme: light dark;
+
+  /* Updated background */
   background: #120250;
   background: -webkit-linear-gradient(186deg, #120250 0%, #60028b 100%);
   background: linear-gradient(186deg, #120250 0%, #60028b 100%);
-
+  background-size: cover;
+  background-attachment: fixed;
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,6 +26,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: inherit;
 }
 
 /* Layout container */
