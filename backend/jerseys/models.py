@@ -6,8 +6,9 @@ class Jersey(models.Model):
     team = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     season = models.DecimalField(max_digits=8, decimal_places=0)
+    image_url = models.URLField(max_length=200, blank=True, null=True)
     is_promoted = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.name
+        return f"{self.brand} - {self.name} ({self.team})"
     
