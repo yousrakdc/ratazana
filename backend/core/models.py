@@ -3,11 +3,11 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 
 
 class CustomUser(AbstractUser):
-    username = models.CharField(max_length=150, unique=True, blank=True, null=True)  # Remove username field if not used
+    username = models.CharField(max_length=150, unique=True, blank=True, null=True)
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []  # Set required fields if any
-
+    REQUIRED_FIELDS = []
+    
     groups = models.ManyToManyField(
         Group,
         related_name='core_user_set',  
@@ -23,14 +23,23 @@ class CustomUser(AbstractUser):
         related_query_name='core_user'
     )
 
+
 class Jersey(models.Model):
     brand = models.CharField(max_length=100)
     team = models.CharField(max_length=100)
-    color = models.CharField(max_length=50)
+    country = models.CharField(max_length=100, default='N/A') 
+    color = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    description = models.TextField(default='No description')
+    season = models.CharField(max_length=10, default='N/A')
+    image_path = models.TextField(default='N/A') 
+    is_promoted = models.BooleanField(default=False)
+    is_upcoming = models.BooleanField(default=False)
+    is_new_release = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.brand} - {self.team}"
+
 
 class PriceHistory(models.Model):
     jersey = models.ForeignKey(Jersey, on_delete=models.CASCADE)

@@ -16,9 +16,13 @@ class CustomUserAdmin(BaseUserAdmin):
     search_fields = ('username', 'email',)
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions')
+    
 
-admin.site.register(CustomUser, BaseUserAdmin)
-admin.site.register(Jersey)
+class JerseyAdmin(admin.ModelAdmin):
+    list_display = ('team', 'price', 'color', 'description') 
+
+admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Jersey, JerseyAdmin)
 admin.site.register(PriceHistory)
 admin.site.register(Like)
 admin.site.register(Alert)

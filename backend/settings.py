@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'signup',
     'rest_framework_simplejwt',
-    'jerseys',
     'django.contrib.sites',
     'dj_rest_auth',
 ]
@@ -143,6 +142,10 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# Media files (uploaded by users or scraped)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
