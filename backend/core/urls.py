@@ -1,15 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from views import JerseyViewSet
-from django.conf import settings
-from django.conf.urls.static import static
-
-router = DefaultRouter()
-router.register(r'jerseys', JerseyViewSet)
+from django.urls import path
+from .views import home, jersey_list
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', home, name='home'),
+    path('api/jerseys/', jersey_list, name='jersey_list'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

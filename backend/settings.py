@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-h*xn@&1y0z&37k0=matdxg^p*ano4m7rl-jpqseg$d-6!w(^m%'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []  # Localhost
 
 # Application definition
 INSTALLED_APPS = [
@@ -88,7 +88,7 @@ SITE_ID = 1
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -149,8 +149,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend/staticfiles'),  # Ensure this path is correct
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.CustomUser'

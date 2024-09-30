@@ -3,6 +3,7 @@ import random
 import re
 import os
 import requests
+from datetime import datetime
 from decimal import Decimal
 from django.core.management.base import BaseCommand
 from playwright.async_api import async_playwright
@@ -22,7 +23,6 @@ class Command(BaseCommand):
     IMAGE_DIR = 'media/jerseys/'  # Directory to save images
 
     def normalize_team_name(self, team):
-        # Remove periods and normalize spaces
         team = team.replace('.', '').strip()
         # Use a mapping to ensure consistency for known teams
         normalization_map = {
@@ -34,7 +34,6 @@ class Command(BaseCommand):
             'Liverpool F.C.': 'Liverpool F.C.',
             'Barcelona': 'FC Barcelona',
             'FC Barcelona': 'FC Barcelona',
-            # Add more mappings as necessary
         }
         return normalization_map.get(team, team)
 
@@ -51,7 +50,7 @@ class Command(BaseCommand):
 
             # Wait for the page to fully load and network to be idle
             await page.wait_for_load_state('networkidle', timeout=120000)
-            await page.wait_for_timeout(random.uniform(2000, 5000))  # Additional wait time
+            await page.wait_for_timeout(random.uniform(2000, 5000))
 
             content = await page.content()
             if not self.is_valid_jersey_page(content):
@@ -67,13 +66,10 @@ class Command(BaseCommand):
             image_urls = self.extract_image_urls(soup)
             saved_image_paths = await self.save_images(image_urls, name)
 
-            # Debugging output for the extracted values
             self.stdout.write(f"Extracted values - Name: {name}, Price: {price}, Description: {description}, Color: {color}, Brand: {brand}, Team: {team}, Images: {saved_image_paths}")
 
-            # Normalize the team name before saving
             normalized_team = self.normalize_team_name(team)
 
-            # Save or update the Jersey in the database
             await self.save_or_update_jersey(brand, normalized_team, price, description, color, saved_image_paths)
 
         except Exception as e:
@@ -87,7 +83,6 @@ class Command(BaseCommand):
             browser = await p.chromium.launch(headless=False)
             context = await browser.new_context(user_agent=user_agent)
 
-            # Set custom headers
             headers = {
                 'Accept-Language': 'en-US,en;q=0.9',
                 'Referer': 'https://www.nike.com/gb/',
@@ -105,7 +100,6 @@ class Command(BaseCommand):
                 self.stderr.write(f"Failed to load main page: {response.status}")
                 return
 
-            # Scrape product links
             await page.wait_for_load_state('networkidle')
 
             # Use a more specific selector that directly targets jersey links
@@ -162,12 +156,11 @@ class Command(BaseCommand):
             'Norway': 'Norway National Team',
         }
         
-        # Loop through the mapping and return the matching team
         for key, value in team_mapping.items():
             if key in name:
                 return value
 
-        return 'N/A'  # Default if no team is found
+        return 'N/A'
 
     def extract_country_from_description(self, description):
         country_mapping = {
@@ -180,7 +173,6 @@ class Command(BaseCommand):
             'Germany': ['Hertha Berlin', 'Wolfsburg'],
             'Poland': ['Poland'],
             'Norway': ['Norway']
-            # Add other countries and their associated teams as needed
         }
         
         for country, teams in country_mapping.items():
@@ -199,9 +191,36 @@ class Command(BaseCommand):
                 self.stderr.write(f"Error converting price: {match.group(0)}")
         return Decimal('0.00')
 
-    async def save_or_update_jersey(self, brand, team, price, description, color, image_paths, season='2024', is_promoted=False, is_upcoming=False, is_new_release=False):
+    def get_release_date(self, description):
+        date_match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', description)  # Format: MM/DD/YYYY
+        if date_match:
+            return datetime.strptime(date_match.group(0), '%d/%m/%Y')
+        return None
+
+    async def save_or_update_jersey(self, brand, team, price, description, color, image_paths, season='2024'):
+        current_date = datetime.now()
+        release_date = self.get_release_date(description)
+
+        is_new_release = False
+        is_upcoming = False
+        is_promoted = False
+
+        # Determine if the jersey is new release based on the release date
+        if release_date:
+            if (current_date - release_date).days < 30:
+                is_new_release = True
+            if release_date > current_date:
+                is_upcoming = True
+
+        # Check for promoted jerseys
+        if "limited edition" in description.lower() or "featured" in description.lower():
+            is_promoted = True
+
         country = self.extract_country_from_description(description)
+        
+        # Save or update the jersey with all flags having default values
         await sync_to_async(self._save_or_update_jersey)(brand, team, price, description, color, image_paths, season, country, is_promoted, is_upcoming, is_new_release)
+
 
     def _save_or_update_jersey(self, brand, team, price, description, color, image_paths, season='2024', country='N/A', is_promoted=False, is_upcoming=False, is_new_release=False):
         jersey, created = Jersey.objects.update_or_create(
@@ -211,7 +230,7 @@ class Command(BaseCommand):
                 'price': price,
                 'description': description,
                 'color': color,
-                'image_path': ','.join(image_paths),  # Store images as a comma-separated string
+                'image_path': ','.join(image_paths),
                 'season': season,
                 'country': country,
                 'is_promoted': is_promoted,
@@ -259,25 +278,22 @@ class Command(BaseCommand):
         # Nike's product images are often in <img> tags or as background-image in <div> tags
         image_urls = []
 
-        # Check <img> tags that contain product images
         img_tags = soup.find_all('img')
         for img in img_tags:
             src = img.get('src')
             if src and 'static.nike.com' in src:
                 image_urls.append(src)
 
-        # Check <div> tags with background images
         div_tags = soup.find_all('div', style=True)
         for div in div_tags:
             style = div.get('style')
-            # Look for background-image URLs in the inline style
+
             match = re.search(r'url\((.*?)\)', style)
             if match:
                 image_url = match.group(1).strip('"')
                 if 'static.nike.com' in image_url:
                     image_urls.append(image_url)
 
-        # Return the unique URLs
         return list(set(image_urls))
 
     def handle(self, *args, **options):
