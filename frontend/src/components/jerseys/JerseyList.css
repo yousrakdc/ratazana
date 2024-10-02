@@ -1,6 +1,42 @@
+.jersey-page {
+  display: flex;
+}
+
+/* Sidebar for the filter */
+.filter-sidebar {
+  width: 250px;
+  border-right: 1px solid #ccc;
+  padding: 20px; 
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Main container for jerseys */
+.jersey-list-container {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+/* General styling for jersey list */
 .jersey-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    padding: 16px;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+/* Each jersey item */
+.jersey-item {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.jersey-item:hover {
+  transform: scale(1.05);
+}
+
+.jersey-image {
+  width: 100%;
+  height: auto;
+}

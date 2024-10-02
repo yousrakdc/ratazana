@@ -1,0 +1,68 @@
+/* Main container for filter options */
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+/* Filter categories (e.g., Team, Country, etc.) */
+.filter-category {
+    margin-bottom: 20px;
+}
+
+.filter-category h4 {
+    cursor: pointer;
+    color: #333;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px; 
+}
+
+/* Filter options that toggle visibility */
+.filter-options {
+    margin-top: 10px;
+    padding-left: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style each filter checkbox label */
+.filter-options label {
+    display: flex; 
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* Checkbox styling */
+.filter-options input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Checkbox visibility */
+.filter-options.active {
+    display: block;
+}
+
+.filter-options {
+    display: none;
+}
+
+/* Additional styling for a better layout */
+.filter-sidebar {
+    padding: 20px;
+    border-right: 1px solid #ccc;
+}
+
+.filter-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import JerseyList from './components/jerseys/JerseyList';
 import SignInForm from './components/auth/SignInForm';
 import SignUpForm from './components/auth/SignUpForm';
-import Layout from './components/Layout';
+import Layout from './components/Layout'
 import LandingPage from './components/landing_page/LandingPage';
 
 

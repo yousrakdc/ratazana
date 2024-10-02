@@ -1,37 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import './PromotedJerseys.css';
 import '../jerseys/JerseyCard.css';
-import jersey1 from './images/jersey1.png';
-import jersey2 from './images/jersey2.png';
-import jersey3 from './images/jersey3.png';
 
+const PromotedJerseys = () => {
+    const [jerseys, setJerseys] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-const jerseys = [
-    { id: 1, name: 'Promoted Jersey 1', image: jersey1, price: '$50' },
-    { id: 2, name: 'Promoted Jersey 2', image: jersey2, price: '$60' },
-    { id: 3, name: 'Promoted Jersey 3', image: jersey3, price: '$100' },
-  ];
-  
-  const PromotedJerseys = () => {
-    // Slider settings
+    useEffect(() => {
+        fetch('/api/jerseys/?promoted=true')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch promoted jerseys');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setJerseys(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                setError(error.message);
+                setLoading(false);
+            });
+    }, []);
+
     const settings = {
-      dots: true,
-      infinite: true,
-      speed: 500,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-    };  
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+    };
 
-  return (
-      <Slider {...settings}>
-        {jerseys.map(jersey => (
-            <img src={jersey.image} alt={jersey.name} />
-        ))}
-      </Slider>
-  );
+    if (loading) return <div>Loading promoted jerseys...</div>;
+    if (error) return <div>Error: {error}</div>;
+
+    return (
+        <Slider {...settings}>
+            {jerseys.map(jersey => (
+                <div key={jersey.id} className="jersey-card">
+                    <img src={jersey.image} alt={jersey.name} />
+                    <h3>{jersey.name}</h3>
+                    <p>{jersey.price}</p>
+                </div>
+            ))}
+        </Slider>
+    );
 };
 
 export default PromotedJerseys;

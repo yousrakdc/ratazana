@@ -1,38 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import '../jerseys/JerseyCard.css';
-import upcoming1 from './images/upcoming1.jpeg';
-import upcoming2 from './images/upcoming2.jpg';
-import upcoming3 from './images/upcoming3.jpg';
-
-const UpcomingJerseysData = [
-  { id: 1, name: 'Upcoming Jersey 1', image: upcoming1, price: '$80' },
-  { id: 2, name: 'Upcoming Jersey 2', image: upcoming2, price: '$85' },
-  { id: 3, name: 'Upcoming Jersey 3', image: upcoming3, price: '$90' },
-];
 
 const UpcomingJerseys = () => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-  };
+    const [jerseys, setJerseys] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  return (
-    <Slider {...settings}>
-      {UpcomingJerseysData.map(jersey => (
-        <div key={jersey.id} className="jersey-card">
-          <img src={jersey.image} alt={jersey.name} />
-          <h3>{jersey.name}</h3>
-          <p>{jersey.price}</p>
-        </div>
-      ))}
-    </Slider>
-  );
+    useEffect(() => {
+        const fetchJerseys = async () => {
+            try {
+                const response = await fetch('/api/jerseys/?upcoming=true');
+                console.log('Response:', response); // Log the response object
+
+                // Check if response is OK
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                setJerseys(data);
+            } catch (err) {
+                console.error('Fetch error:', err); // Log any fetch errors
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchJerseys();
+    }, []);
+
+    const settings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+    };
+
+    if (loading) return <div>Loading upcoming jerseys...</div>;
+    if (error) return <div>Error: {error}</div>;
+
+    return (
+        <Slider {...settings}>
+            {jerseys.map(jersey => (
+                <div key={jersey.id} className="jersey-card">
+                    <img src={jersey.image} alt={jersey.name} />
+                    <h3>{jersey.name}</h3>
+                    <p>{jersey.price}</p>
+                </div>
+            ))}
+        </Slider>
+    );
 };
 
 export default UpcomingJerseys;

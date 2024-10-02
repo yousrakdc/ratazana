@@ -8,7 +8,6 @@ import '../jerseys/JerseyCard.css';
 const LandingPage = () => {
   return (
     <div className="landing-page">
-
       {/* Promoted Jerseys Section */}
       <section className="promoted-section">
         <PromotedJerseys />
