@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.conf import settings 
 
 
 class CustomUser(AbstractUser):
@@ -23,7 +24,6 @@ class CustomUser(AbstractUser):
         related_query_name='core_user'
     )
 
-
 class Jersey(models.Model):
     brand = models.CharField(max_length=100)
     team = models.CharField(max_length=100)
@@ -32,7 +32,7 @@ class Jersey(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField(default='No description')
     season = models.CharField(max_length=10, default='N/A')
-    image_path = models.TextField(default='N/A') 
+    image_path = models.ImageField(upload_to='jerseys/')  # This can be a single image if needed
     is_promoted = models.BooleanField(default=False)
     is_upcoming = models.BooleanField(default=False)
     is_new_release = models.BooleanField(default=False)
@@ -40,7 +40,13 @@ class Jersey(models.Model):
     def __str__(self):
         return f"{self.brand} - {self.team}"
 
+class JerseyImage(models.Model):
+    jersey = models.ForeignKey(Jersey, related_name='images', on_delete=models.CASCADE)
+    image_path = models.ImageField(upload_to='jerseys/')
 
+    def __str__(self):
+        return f"{self.jersey.team} Image"
+    
 class PriceHistory(models.Model):
     jersey = models.ForeignKey(Jersey, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=8, decimal_places=2)

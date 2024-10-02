@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import Jersey
+from .models import Jersey, JerseyImage
+
+class JerseyImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JerseyImage
+        fields = ['image_path']
 
 class JerseySerializer(serializers.ModelSerializer):
+    images = JerseyImageSerializer(many=True, read_only=True)  # Ensure this is set up
+
     class Meta:
         model = Jersey
         fields = [
@@ -13,15 +20,8 @@ class JerseySerializer(serializers.ModelSerializer):
             'price', 
             'description', 
             'season', 
-            'image_path', 
             'is_promoted', 
             'is_upcoming', 
-            'is_new_release'
+            'is_new_release',
+            'images',  # Include images field
         ]
-
-        
-    def get_image(self, obj):
-        request = self.context.get('request')
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
-        return None

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import CustomUser, Jersey, PriceHistory, Like, Alert
+from .models import CustomUser, Jersey, PriceHistory, Like, Alert, JerseyImage
 
 class CustomUserAdmin(BaseUserAdmin):
     model = CustomUser
@@ -18,9 +18,16 @@ class CustomUserAdmin(BaseUserAdmin):
     filter_horizontal = ('groups', 'user_permissions')
     
 
-class JerseyAdmin(admin.ModelAdmin):
-    list_display = ('team', 'price', 'color', 'description') 
+class JerseyImageInline(admin.TabularInline):
+    model = JerseyImage
+    extra = 1  # Allows to add multiple images in one go
 
+class JerseyAdmin(admin.ModelAdmin):
+    list_display = ('brand', 'team', 'price', 'season', 'is_promoted', 'is_upcoming', 'is_new_release')
+    search_fields = ('brand', 'team')
+    list_filter = ('is_promoted', 'is_upcoming', 'is_new_release')
+    inlines = [JerseyImageInline]  # Add the inline for images
+    
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Jersey, JerseyAdmin)
 admin.site.register(PriceHistory)

@@ -144,8 +144,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Media files (uploaded by users or scraped)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend/media')
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
