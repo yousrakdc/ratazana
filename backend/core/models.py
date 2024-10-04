@@ -29,9 +29,11 @@ class Jersey(models.Model):
     team = models.CharField(max_length=100)
     country = models.CharField(max_length=100, default='N/A') 
     color = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=8, decimal_places=2)
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    original_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     description = models.TextField(default='No description')
     season = models.CharField(max_length=10, default='N/A')
+    sizes = models.TextField(default='N/A')        
     image_path = models.ImageField(upload_to='jerseys/')  # This can be a single image if needed
     is_promoted = models.BooleanField(default=False)
     is_upcoming = models.BooleanField(default=False)

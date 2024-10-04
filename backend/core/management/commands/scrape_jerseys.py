@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from core.models import Jersey
 from asgiref.sync import sync_to_async
 
+
 class Command(BaseCommand):
     help = 'Scrapes jersey details from the Nike website.'
 
@@ -58,19 +59,20 @@ class Command(BaseCommand):
                 return
 
             soup = BeautifulSoup(content, 'html.parser')
-            name, price_text, description, color, brand, team = self.extract_jersey_details_from_soup(soup)
+            name, price_text, original_price_text, description, color, brand, team = self.extract_jersey_details_from_soup(soup)
 
             price = self.parse_price(price_text)
+            original_price = self.parse_price(original_price_text)  # Extract original price
 
-            # Extract and save images
+            sizes = self.extract_sizes(soup)  # Extract sizes
             image_urls = self.extract_image_urls(soup)
             saved_image_paths = await self.save_images(image_urls, name)
 
-            self.stdout.write(f"Extracted values - Name: {name}, Price: {price}, Description: {description}, Color: {color}, Brand: {brand}, Team: {team}, Images: {saved_image_paths}")
+            self.stdout.write(f"Extracted values - Name: {name}, Price: {price}, Original Price: {original_price}, Description: {description}, Color: {color}, Brand: {brand}, Team: {team}, Sizes: {sizes}, Images: {saved_image_paths}")
 
             normalized_team = self.normalize_team_name(team)
 
-            await self.save_or_update_jersey(brand, normalized_team, price, description, color, saved_image_paths)
+            await self.save_or_update_jersey(brand, normalized_team, price, original_price, description, color, saved_image_paths, sizes)
 
         except Exception as e:
             self.stderr.write(f"Error scraping {jersey_url}: {e}")
@@ -120,8 +122,13 @@ class Command(BaseCommand):
     def extract_jersey_details_from_soup(self, soup):
         name = soup.find('h1').get_text(strip=True) if soup.find('h1') else 'N/A'
 
+        # Extract discounted price
         price_tag = soup.find('div', id='price-container')
         price_text = price_tag.get_text(strip=True) if price_tag else 'N/A'
+
+        # Extract original price if available
+        original_price_tag = soup.find('span', class_='nds-text css-1i6dsa8 e1yhcai00 appearance-body1 color-secondary display-inline weight-regular strikethrough')
+        original_price_text = original_price_tag.get_text(strip=True) if original_price_tag else 'N/A'
 
         color_tag = soup.find('li', {'data-testid': 'product-description-color-description'})
         color = color_tag.get_text(strip=True).replace('Colour Shown:', '') if color_tag else 'N/A'
@@ -132,10 +139,18 @@ class Command(BaseCommand):
         brand = "Nike"
         team = self.extract_team_from_name(name)
 
-        return name, price_text, description, color, brand, team
+        return name, price_text, original_price_text, description, color, brand, team
+
+    def extract_sizes(self, soup):
+        sizes = []
+        size_tags = soup.find_all('label', class_='u-full-width u-full-height d-sm-flx flx-jc-sm-c flx-ai-sm-c')
+        for size_tag in size_tags:
+            size = size_tag.get_text(strip=True)
+            if size:
+                sizes.append(size)
+        return sizes
 
     def extract_team_from_name(self, name):
-        # Mapping of team identifiers to team names
         team_mapping = {
             'Barcelona': 'F.C. Barcelona',
             'PSG': 'Paris Saint-Germain',
@@ -182,7 +197,6 @@ class Command(BaseCommand):
         return 'N/A'
 
     def parse_price(self, price_text):
-        # Extract price using regex and ensure it's clean
         match = re.search(r'\d+(\.\d{1,2})?', price_text)
         if match:
             try:
@@ -192,12 +206,32 @@ class Command(BaseCommand):
         return Decimal('0.00')
 
     def get_release_date(self, description):
-        date_match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', description)  # Format: MM/DD/YYYY
+        date_match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', description)  # Format: mm/dd/yyyy
         if date_match:
-            return datetime.strptime(date_match.group(0), '%d/%m/%Y')
+            return datetime.strptime(date_match.group(0), '%m/%d/%Y')
         return None
 
-    async def save_or_update_jersey(self, brand, team, price, description, color, image_paths, season='2024'):
+    def extract_image_urls(self, soup):
+        image_tags = soup.find_all('img', class_='product-image')
+        return [img['src'] for img in image_tags if 'src' in img.attrs]
+
+    async def save_images(self, image_urls, jersey_name):
+        saved_image_paths = []
+        os.makedirs(self.IMAGE_DIR, exist_ok=True)
+
+        for image_url in image_urls:
+            response = requests.get(image_url)
+            if response.status_code == 200:
+                image_path = os.path.join(self.IMAGE_DIR, f"{jersey_name}.jpg")
+                with open(image_path, 'wb') as image_file:
+                    image_file.write(response.content)
+                saved_image_paths.append(image_path)
+            else:
+                self.stderr.write(f"Failed to download image: {image_url}")
+
+        return saved_image_paths
+
+    async def save_or_update_jersey(self, brand, team, price, original_price, description, color, image_paths, sizes, season='2024'):
         current_date = datetime.now()
         release_date = self.get_release_date(description)
 
@@ -205,96 +239,40 @@ class Command(BaseCommand):
         is_upcoming = False
         is_promoted = False
 
-        # Determine if the jersey is new release based on the release date
         if release_date:
             if (current_date - release_date).days < 30:
                 is_new_release = True
             if release_date > current_date:
                 is_upcoming = True
 
-        # Check for promoted jerseys
-        if "limited edition" in description.lower() or "featured" in description.lower():
-            is_promoted = True
-
-        country = self.extract_country_from_description(description)
-        
-        # Save or update the jersey with all flags having default values
-        await sync_to_async(self._save_or_update_jersey)(brand, team, price, description, color, image_paths, season, country, is_promoted, is_upcoming, is_new_release)
-
-
-    def _save_or_update_jersey(self, brand, team, price, description, color, image_paths, season='2024', country='N/A', is_promoted=False, is_upcoming=False, is_new_release=False):
-        jersey, created = Jersey.objects.update_or_create(
+        # Find or create the jersey
+        jersey, created = await sync_to_async(Jersey.objects.get_or_create)(
             brand=brand,
             team=team,
             defaults={
                 'price': price,
+                'original_price': original_price,  # Save original price
                 'description': description,
                 'color': color,
-                'image_path': ','.join(image_paths),
                 'season': season,
-                'country': country,
-                'is_promoted': is_promoted,
-                'is_upcoming': is_upcoming,
+                'image_urls': image_paths,
+                'sizes': sizes,
                 'is_new_release': is_new_release,
+                'is_upcoming': is_upcoming,
+                'is_promoted': is_promoted,
             }
         )
-        if created:
-            self.stdout.write(f"Created new jersey: {team}, Price: {price}, Description: {description}, Color: {color}, Brand: {brand}, Country: {country}, Season: {season}, Images: {image_paths}")
-        else:
-            self.stdout.write(f"Updated existing jersey: {team}, Price: {price}, Description: {description}, Color: {color}, Brand: {brand}, Country: {country}, Season: {season}, Images: {image_paths}")
 
-    async def save_images(self, image_urls, jersey_name):
-        saved_image_paths = []
-        for image_url in image_urls:
-            image_path = await self.download_image(image_url, jersey_name)
-            if image_path != 'N/A':
-                saved_image_paths.append(image_path)
-        return saved_image_paths
+        if not created:
+            # Update only price, original price, sizes, and image URLs
+            jersey.price = price
+            jersey.original_price = original_price  # Update original price
+            jersey.sizes = sizes
+            jersey.image_urls = image_paths
+            await sync_to_async(jersey.save)()
 
-    async def download_image(self, image_url, jersey_name):
-        if image_url == 'N/A':
-            return 'N/A'
-        
-        try:
-            os.makedirs(self.IMAGE_DIR, exist_ok=True)
+        self.stdout.write(f"{'Created' if created else 'Updated'} jersey: {brand} {team}")
 
-            filename = f"{jersey_name.replace(' ', '_').replace('/', '_')}_{random.randint(1, 1000)}.jpg"
-            image_path = os.path.join(self.IMAGE_DIR, filename)
-
-            response = requests.get(image_url)
-            if response.status_code == 200:
-                with open(image_path, 'wb') as f:
-                    f.write(response.content)
-                self.stdout.write(f"Image saved: {image_path}")
-                return image_path
-            else:
-                self.stderr.write(f"Failed to download image from {image_url}: Status code {response.status_code}")
-                return 'N/A'
-        except Exception as e:
-            self.stderr.write(f"Error downloading image: {e}")
-            return 'N/A'
-
-    def extract_image_urls(self, soup):
-        # Nike's product images are often in <img> tags or as background-image in <div> tags
-        image_urls = []
-
-        img_tags = soup.find_all('img')
-        for img in img_tags:
-            src = img.get('src')
-            if src and 'static.nike.com' in src:
-                image_urls.append(src)
-
-        div_tags = soup.find_all('div', style=True)
-        for div in div_tags:
-            style = div.get('style')
-
-            match = re.search(r'url\((.*?)\)', style)
-            if match:
-                image_url = match.group(1).strip('"')
-                if 'static.nike.com' in image_url:
-                    image_urls.append(image_url)
-
-        return list(set(image_urls))
-
-    def handle(self, *args, **options):
-        asyncio.run(self.scrape_website())
+    def handle(self, *args, **kwargs):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.scrape_website())
