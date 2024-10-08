@@ -26,7 +26,7 @@ const SignInForm = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [csrfToken, setCsrfToken] = useState('');
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // Default state
 
     useEffect(() => {
         const fetchCsrfToken = async () => {
@@ -39,21 +39,31 @@ const SignInForm = () => {
             }
         };
 
+        // Get CSRF token from cookie
         const csrfFromCookie = getCookie('csrftoken');
         if (csrfFromCookie) {
             setCsrfToken(csrfFromCookie);
             console.log('CSRF Token retrieved from cookie:', csrfFromCookie); // Log retrieved CSRF token from cookie
         } else {
-            fetchCsrfToken();
+            fetchCsrfToken(); // Fetch from server if not found in cookie
         }
 
         // Check login status on component mount
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/auth/check-login/', { withCredentials: true });
+                const response = await axios.get('http://localhost:8000/auth/check-login/', {
+                    headers: {
+                        'X-CSRFToken': csrfFromCookie,  // Add CSRF token to the request headers
+                    },
+                    withCredentials: true,  // Ensure cookies are sent with the request
+                });
+                console.log('Login status response:', response.data); // Log the response for debugging
                 setIsLoggedIn(response.data.isLoggedIn);
             } catch (error) {
                 console.error('Error checking login status:', error);
+                if (error.response) {
+                    console.error('Response data:', error.response.data);
+                }
             }
         };
 
@@ -103,6 +113,7 @@ const SignInForm = () => {
 
     // Logout function
     const handleLogout = async () => {
+        const csrfToken = getCookie('csrftoken'); // Retrieve CSRF token from cookie
         console.log('Attempting to log out with CSRF Token:', csrfToken); // Log the CSRF token before logout
 
         try {
@@ -113,7 +124,7 @@ const SignInForm = () => {
                     headers: {
                         'X-CSRFToken': csrfToken, // Include CSRF token
                     },
-                    withCredentials: true,
+                    withCredentials: true,  // Ensure cookies are sent with the request
                 }
             );
 
@@ -123,7 +134,6 @@ const SignInForm = () => {
             setIsLoggedIn(false); // Update the login state
         } catch (error) {
             console.error('Logout error:', error);
-
             if (error.response) {
                 // Log the full response for debugging
                 console.error('Full response:', error.response);
@@ -134,11 +144,14 @@ const SignInForm = () => {
         }
     };
 
+    // Log the login status for debugging
+    console.log('Current login status:', isLoggedIn);
+
     return (
         <div className="main-container">
             <div className="form-container">
                 <p className="title">Welcome back!</p>
-                
+
                 {/* Show either login form or logout button based on login state */}
                 {!isLoggedIn ? (
                     <form className="form" onSubmit={handleSubmit}>
