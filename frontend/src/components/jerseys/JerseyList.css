@@ -30,13 +30,41 @@
   padding: 16px;
   text-align: center;
   transition: transform 0.2s;
+  position: relative; /* Position for image wrapper */
+  overflow: hidden; /* Hide overflow */
 }
 
 .jersey-item:hover {
   transform: scale(1.05);
 }
 
+/* Image wrapper for hover effect */
+.image-wrapper {
+  position: relative;
+  height: 400px; /* Set a fixed height for consistency */
+  overflow: hidden; /* Hide overflow */
+}
+
 .jersey-image {
   width: 100%;
   height: auto;
+  transition: opacity 0.5s ease-in-out; /* Transition for opacity */
+}
+
+.hover-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.5s ease-in-out; /* Transition for opacity */
+}
+
+.image-wrapper:hover .jersey-image {
+  opacity: 0; /* Fade out the first image */
+}
+
+.image-wrapper:hover .hover-image {
+  opacity: 1; /* Fade in the second image */
 }

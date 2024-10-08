@@ -1,39 +1,44 @@
 .jersey-card {
-  width: 500px;
-  height: 304px;
+  width: 500px; /* Fixed width */
+  height: 304px; /* Fixed height */
   border-radius: 30px;
-  background: rgba(171,129,205,0.5);
+  background: rgba(171, 129, 205, 0.5);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(171,129,205,0.25);
+  border: 1px solid rgba(171, 129, 205, 0.25);
   margin: 10px;
   box-shadow: 15px 15px 30px rgb(25, 25, 25),
               -15px -15px 30px rgb(55, 16, 84);
-  
- }
-  
-  .jersey-image {
-    width: 100%;
-    height: 40%;
+  display: flex; /* Enable flexbox for better layout */
+  flex-direction: column; /* Stack image and text vertically */
+  justify-content: space-between; /* Space between items */
+  text-align: center; /* Center text */
+}
+
+.jersey-image {
+  width: 100%; /* Full width of the card */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 30px 30px 0 0; /* Rounded corners for the top */
+}
+
+.jersey-details {
+  padding: 10px;
+}
+
+.team-name {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.price {
+  font-size: 1rem;
+  color: #ffff; /* White color */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .jersey-card {
+    width: 100%; /* Allow full width on smaller screens */
+    height: auto; /* Let height adjust based on content */
   }
-  
-  .jersey-details {
-    padding: 10px;
-  }
-  
-  .team-name {
-    font-size: 1.2rem;
-    margin: 0;
-  }
-  
-  .price {
-    font-size: 1rem;
-    color: #ffff;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .jersey-card {
-      margin: 10px;
-    }
-  }
+}

@@ -2,30 +2,24 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import './PromotedJerseys.css';
 import '../jerseys/JerseyCard.css';
 
 const PromotedJerseys = () => {
     const [jerseys, setJerseys] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/api/jerseys/?promoted=true')
+        fetch('http://localhost:8000/api/jerseys/?category=promoted')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to fetch promoted jerseys');
+                    throw new Error('Network response was not ok ' + response.statusText);
                 }
                 return response.json();
             })
             .then(data => {
+                console.log("Fetched Jerseys:", data); // Log the fetched data
                 setJerseys(data);
-                setLoading(false);
             })
-            .catch(error => {
-                setError(error.message);
-                setLoading(false);
-            });
+            .catch(error => console.error('Error fetching promoted jerseys:', error));
     }, []);
 
     const settings = {
@@ -36,18 +30,23 @@ const PromotedJerseys = () => {
         slidesToScroll: 1,
     };
 
-    if (loading) return <div>Loading promoted jerseys...</div>;
-    if (error) return <div>Error: {error}</div>;
-
     return (
         <Slider {...settings}>
-            {jerseys.map(jersey => (
-                <div key={jersey.id} className="jersey-card">
-                    <img src={jersey.image} alt={jersey.name} />
-                    <h3>{jersey.name}</h3>
-                    <p>{jersey.price}</p>
-                </div>
-            ))}
+            {jerseys.length > 0 ? (
+                jerseys.map(jersey => (
+                    <div key={jersey.id} className="jersey-card">
+                        {jersey.images.length > 0 && (
+                            <img className="jersey-image" src={jersey.images[0].image_path} alt={jersey.team} />
+                        )}
+                        <div className="jersey-details">
+                            <h3 className="team-name">{jersey.team}</h3>
+                            <p className="price">${parseFloat(jersey.price).toFixed(2)}</p>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <p>No promoted jerseys available</p>
+            )}
         </Slider>
     );
 };

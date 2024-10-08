@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '../Layout';
+import { Link } from 'react-router-dom';
+import Layout from '../Layout'; // Ensure Layout wraps the content
 import Filter from './Filter';
 import './JerseyList.css';
 
@@ -9,6 +10,7 @@ const JerseyList = () => {
     const [filters, setFilters] = useState({ team: [], country: [], color: [], price: [] });
     const [error, setError] = useState(null);
 
+    // Fetch jerseys from the API
     useEffect(() => {
         fetch('http://localhost:8000/api/jerseys/')
             .then((response) => {
@@ -19,13 +21,14 @@ const JerseyList = () => {
             })
             .then((data) => {
                 setJerseys(data);
-                setFilteredJerseys(data);
+                setFilteredJerseys(data); // Initialize filtered jerseys
             })
             .catch((error) => {
-                setError(error.message);
+                setError(error.message); // Handle fetch errors
             });
     }, []);
 
+    // Handle filter changes
     const handleFilterChange = (e) => {
         const { value, checked, name } = e.target;
 
@@ -38,54 +41,54 @@ const JerseyList = () => {
         });
     };
 
-    useEffect(() => {
-        let filtered = jerseys;
+// Apply filtering logic based on selected filters
+useEffect(() => {
+    let filtered = jerseys;
 
-        // Debugging logs
-        console.log("Initial Jerseys:", jerseys);
-        console.log("Current Filters:", filters);
-
-        // Filter by team
-        if (filters.team.length > 0) {
-            filtered = filtered.filter(jersey => filters.team.includes(jersey.team));
-            console.log("Filtered by Team:", filtered);
-        }
-
-        // Filter by country
-        if (filters.country.length > 0) {
-            filtered = filtered.filter(jersey => filters.country.includes(jersey.country));
-            console.log("Filtered by Country:", filtered);
-        }
-
-        // Filter by color
-        if (filters.color.length > 0) {
-            filtered = filtered.filter(jersey => filters.color.includes(jersey.color));
-            console.log("Filtered by Color:", filtered);
-        }
-
-        // Filter by price range
-        if (filters.price.length > 0) {
-            filtered = filtered.filter(jersey => {
-                const price = parseInt(jersey.price, 10);
-                return filters.price.some(priceRange => {
-                    const [min, max] = priceRange.split('-').map(Number);
-                    return price >= min && price <= max;
-                });
+    // Filter by team
+    if (filters.team.length > 0) {
+        filtered = filtered.filter((jersey) => {
+            // Check if the jersey's team is included in the selected filters
+            return filters.team.some((filterTeam) => 
+                jersey.team.toLowerCase().includes(filterTeam.toLowerCase())
+            );
+        });
+    }
+    // Filter by country
+    if (filters.country.length > 0) {
+        filtered = filtered.filter((jersey) => filters.country.includes(jersey.country));
+    }
+    // Filter by color
+    if (filters.color.length > 0) {
+        filtered = filtered.filter((jersey) => {
+            return filters.color.some((filterColor) => 
+                jersey.color.toLowerCase().includes(filterColor.toLowerCase())
+            );
+        });
+    }
+    // Filter by price range
+    if (filters.price.length > 0) {
+        filtered = filtered.filter((jersey) => {
+            const price = parseFloat(jersey.price);
+            return filters.price.some((range) => {
+                const [min, max] = range.split('-').map(Number);
+                return price >= min && price <= max;
             });
-            console.log("Filtered by Price:", filtered);
-        }
+        });
+    }
 
-        // Final filtered jerseys
-        setFilteredJerseys(filtered);
-        console.log("Final Filtered Jerseys:", filtered);
-    }, [filters, jerseys]);
+    setFilteredJerseys(filtered); // Update the state with filtered jerseys
+}, [filters, jerseys]);
 
+
+
+
+    // Display error message if fetch fails
     if (error) {
         return <div>Error: {error}</div>;
     }
 
     return (
-        <Layout>
             <div className="jersey-page">
                 <aside className="filter-sidebar">
                     <Filter onFilterChange={handleFilterChange} />
@@ -95,13 +98,22 @@ const JerseyList = () => {
                         {filteredJerseys.length > 0 ? (
                             filteredJerseys.map((jersey) => (
                                 <div key={jersey.id} className="jersey-item">
-                                    <div className="image-container">
-                                        <img 
-                                            src={`http://localhost:8000${jersey.images[0].image_path}`} 
-                                            alt={jersey.team} 
-                                            className="jersey-image" 
-                                        />
-                                    </div>
+                                    <Link to={`/jerseys/${jersey.id}`} className="image-container">
+                                        <div className="image-wrapper">
+                                            <img
+                                                src={`http://localhost:8000${jersey.images[0].image_path}`}
+                                                alt={jersey.team}
+                                                className="jersey-image"
+                                            />
+                                            {jersey.images.length > 1 && (
+                                                <img
+                                                    src={`http://localhost:8000${jersey.images[1].image_path}`}
+                                                    alt={jersey.team}
+                                                    className="jersey-image hover-image"
+                                                />
+                                            )}
+                                        </div>
+                                    </Link>
                                     <h3 className="jersey-team-name">{jersey.team}</h3>
                                     <p>£{jersey.price}</p>
                                 </div>
@@ -112,7 +124,7 @@ const JerseyList = () => {
                     </div>
                 </main>
             </div>
-        </Layout>
+
     );
 };
 

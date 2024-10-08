@@ -60,6 +60,9 @@ const Filter = ({ onFilterChange }) => {
                     <label>
                         <input type="checkbox" name="country" value="Spain" onChange={onFilterChange} /> Spain
                     </label>
+                    <label>
+                        <input type="checkbox" name="country" value="France" onChange={onFilterChange} /> France
+                    </label>
                 </div>
             </div>
 

@@ -6,25 +6,11 @@ import '../jerseys/JerseyCard.css';
 
 const NewReleases = () => {
     const [jerseys, setJerseys] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/api/jerseys/?new_release=true')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch new releases');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setJerseys(data);
-                setLoading(false);
-            })
-            .catch(error => {
-                setError(error.message);
-                setLoading(false);
-            });
+        fetch('/api/jerseys/?category=new_release')
+            .then(response => response.json())
+            .then(data => setJerseys(data));
     }, []);
 
     const settings = {
@@ -35,15 +21,12 @@ const NewReleases = () => {
         slidesToScroll: 4,
     };
 
-    if (loading) return <div>Loading new releases...</div>;
-    if (error) return <div>Error: {error}</div>;
-
     return (
         <Slider {...settings}>
             {jerseys.map(jersey => (
                 <div key={jersey.id} className="jersey-card">
-                    <img src={jersey.image} alt={jersey.name} />
-                    <h3>{jersey.name}</h3>
+                    <img src={jersey.images[0]?.image_path} alt={jersey.team} />
+                    <h3>{jersey.team}</h3>
                     <p>{jersey.price}</p>
                 </div>
             ))}

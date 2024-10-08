@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './SignUpForm.css';
 
@@ -6,14 +6,14 @@ import './SignUpForm.css';
 const getCookie = (name) => {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.startsWith(name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
       }
+    }
   }
   return cookieValue;
 };
@@ -24,33 +24,56 @@ function SignUpForm() {
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
   const [errors, setErrors] = useState({});
-  
+  const [csrfToken, setCsrfToken] = useState('');
+
+  // Get CSRF token from the server when the component mounts
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/csrf-token/');
+        setCsrfToken(response.data.csrfToken);
+        console.log("Retrieved CSRF Token:", response.data.csrfToken);
+      } catch (error) {
+        console.error('Error fetching CSRF token:', error);
+      }
+    };
+
+    fetchCsrfToken();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Get CSRF token
-    const csrfToken = getCookie('csrftoken');
-    console.log("CSRF Token:", csrfToken);
+
+
+    if (!csrfToken) {
+      console.error('CSRF Token is missing');
+      setErrors({ detail: 'CSRF token is missing.' });
+      return;
+    }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/signup/', {
-        username,
-        email,
-        password1,
-        password2
-      }, {
-        headers: {
-          'X-CSRFToken': csrfToken
+      const response = await axios.post(
+        'http://127.0.0.1:8000/auth/signup/',
+        {
+          username,
+          email,
+          password1,
+          password2
         },
-        withCredentials: true
-      });
+        {
+          headers: {
+            'X-CSRFToken': csrfToken
+          },
+          withCredentials: true
+        }
+      );
 
       console.log('Signup successful:', response.data);
     } catch (error) {
       if (error.response && error.response.data) {
-        setErrors(error.response.data); // Set validation errors
+        setErrors(error.response.data);
       } else {
-        console.error("Signup error:", error);
+        console.error('Signup error:', error);
         setErrors({ detail: 'An error occurred during signup.' });
       }
     }
@@ -100,6 +123,7 @@ function SignUpForm() {
           <div className="arrow"></div>
         </div>
       </button>
+      {errors.detail && <p style={{ color: 'red' }}>{errors.detail}</p>}
     </form>
   );
 }
