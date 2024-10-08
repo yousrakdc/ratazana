@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django.contrib.sites',
     'dj_rest_auth',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
 }
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -68,6 +73,8 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'AUTH_TOKEN_CLASSES': ('access',),
+    'AUTH_USER_MODEL' : 'core.CustomUser',
+
 }
 
 ACCOUNT_EMAIL_REQUIRED = True
@@ -77,10 +84,12 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 
 # Use cookies for session management
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'Lax' 
 
 ROOT_URLCONF = 'urls'
 SITE_ID = 1
@@ -108,6 +117,32 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
     'core.auth_backends.EmailBackend',
 ]
+
+# Configure email verification settings
+ACCOUNT_EMAIL_VERIFICATION = "none"  # Options: 'mandatory', 'optional', 'none'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True  # Or False if you don't want username field
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # To use email for login instead of username
+ACCOUNT_FORMS = {'signup': 'path.to.CustomSignupForm'}
+
+# Redirects
+LOGIN_REDIRECT_URL = "/"  # Where to redirect after login
+ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
+ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+
+# Optional but recommended
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
+
+# Use Django's password validators
+ACCOUNT_PASSWORD_MIN_LENGTH = 8
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-email-password'
 
 # Database configuration
 DATABASES = {
@@ -144,26 +179,27 @@ USE_I18N = True
 USE_TZ = True
 
 # Media files (uploaded by users or scraped)
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'backend/media')
-
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/staticfiles'),  # Ensure this path is correct
+    os.path.join(BASE_DIR, 'frontend/staticfiles'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.CustomUser'
 
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # URL where your React app will run
+    "http://localhost:5173",
 ]
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173'] 
+
 INTERNAL_IPS = [
-    '0.0.0.1',  # Use localhost for internal IPs
+    '0.0.0.1',
 ]
