@@ -9,10 +9,8 @@ const getCookie = (name) => {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            console.log(`Checking cookie: ${cookie}`);
             if (cookie.startsWith(name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                console.log(`Found CSRF Token in cookie: ${cookieValue}`); // Log found CSRF token
                 break;
             }
         }
@@ -26,54 +24,99 @@ const SignInForm = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [csrfToken, setCsrfToken] = useState('');
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // Default state
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    // Function to check JWT token validity
+    const isTokenExpired = (token) => {
+        if (!token) return true; // No token means expired
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return (payload.exp * 1000) < Date.now();
+    };
+
+    // Refresh the access token
+    const handleTokenRefresh = async (refreshToken) => {
+        try {
+            const response = await axios.post(
+                'http://localhost:8000/auth/token/refresh/', // Correct endpoint
+                { refresh: refreshToken },
+                { withCredentials: true } // Ensure cookies are sent with the request
+            );
+
+            const newAccessToken = response.data.access;
+            localStorage.setItem('authToken', newAccessToken);
+            setIsLoggedIn(true);
+            return newAccessToken; // Return new access token
+        } catch (error) {
+            console.error('Token refresh error:', error);
+            // Handle specific error cases
+            if (error.response) {
+                console.error('Refresh Token Error:', error.response.data);
+                if (error.response.status === 401 || error.response.status === 403) {
+                    // Token refresh failed, clear tokens
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('refreshToken');
+                    setIsLoggedIn(false);
+                    setError('Your session has expired. Please log in again.');
+                }
+            }
+            return null; // Return null if refresh failed
+        }
+    };
 
     useEffect(() => {
+        const authToken = localStorage.getItem('authToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        // If the access token is valid, set the user as logged in
+        if (authToken && !isTokenExpired(authToken)) {
+            setIsLoggedIn(true);
+        } 
+        // If the access token is expired, try refreshing it
+        else if (refreshToken) {
+            handleTokenRefresh(refreshToken);
+        }
+
+        // Fetch CSRF token from server
         const fetchCsrfToken = async () => {
             try {
                 const response = await axios.get('http://localhost:8000/auth/api/csrf-token/', { withCredentials: true });
                 setCsrfToken(response.data.csrfToken);
-                console.log('CSRF Token retrieved from server:', response.data.csrfToken); // Log retrieved CSRF token
             } catch (error) {
                 console.error('Error fetching CSRF token from server:', error);
+                setError('Could not retrieve CSRF token. Please try again.');
             }
         };
 
-        // Get CSRF token from cookie
         const csrfFromCookie = getCookie('csrftoken');
         if (csrfFromCookie) {
             setCsrfToken(csrfFromCookie);
-            console.log('CSRF Token retrieved from cookie:', csrfFromCookie); // Log retrieved CSRF token from cookie
         } else {
-            fetchCsrfToken(); // Fetch from server if not found in cookie
+            fetchCsrfToken();
         }
 
-        // Check login status on component mount
-        const checkLoginStatus = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/auth/check-login/', {
-                    headers: {
-                        'X-CSRFToken': csrfFromCookie,  // Add CSRF token to the request headers
-                    },
-                    withCredentials: true,  // Ensure cookies are sent with the request
-                });
-                console.log('Login status response:', response.data); // Log the response for debugging
-                setIsLoggedIn(response.data.isLoggedIn);
-            } catch (error) {
-                console.error('Error checking login status:', error);
-                if (error.response) {
-                    console.error('Response data:', error.response.data);
+        // Set up Axios interceptors to handle token refresh on 401
+        const axiosInstance = axios.create();
+        axiosInstance.interceptors.response.use(
+            response => response,
+            async error => {
+                const originalRequest = error.config;
+                // Check for 401 Unauthorized error and if we haven't already tried to refresh the token
+                if (error.response.status === 401 && !originalRequest._retry) {
+                    originalRequest._retry = true; // Mark the request as retried
+                    const newAccessToken = await handleTokenRefresh(refreshToken);
+                    if (newAccessToken) {
+                        // Update the Authorization header and retry the original request
+                        axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+                        return axiosInstance(originalRequest);
+                    }
                 }
+                return Promise.reject(error);
             }
-        };
-
-        checkLoginStatus();
+        );
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Attempting to submit form with CSRF Token:', csrfToken);
-        console.log('Payload being sent:', { email, password });
 
         if (!csrfToken) {
             setError("CSRF token not found. Unable to submit form.");
@@ -86,73 +129,82 @@ const SignInForm = () => {
                 { email, password },
                 {
                     headers: {
-                        'X-CSRFToken': csrfToken,  // Correctly sending CSRF token
+                        'X-CSRFToken': csrfToken,
                     },
                     withCredentials: true,
                 }
             );
 
-            console.log('Login successful:', response.data);
-            setSuccess('Login successful!');
-            setError('');
-            setIsLoggedIn(true); // Update the login state
-
-            // Clear the input fields after successful login
-            setEmail('');
-            setPassword('');
+            // Ensure the tokens are in the response
+            if (response.data.access && response.data.refresh) {
+                localStorage.setItem('authToken', response.data.access);
+                localStorage.setItem('refreshToken', response.data.refresh); // Store the refresh token
+                setSuccess('Login successful!');
+                setError('');
+                setIsLoggedIn(true);
+                setEmail(''); // Clear email
+                setPassword(''); // Clear password
+            } else {
+                throw new Error("Tokens not received from server.");
+            }
         } catch (error) {
             console.error('Login error:', error);
-            if (error.response && error.response.data) {
-                setError(error.response.data.detail || 'An error occurred.');
+            if (error.response) {
+                console.error('Error response:', error.response);
+                console.error('Error data:', error.response.data);
+                setError(error.response.data.detail || 'An error occurred during login.');
+            } else if (error.request) {
+                console.error('Error request:', error.request);
+                setError('No response received from the server. Please try again.');
             } else {
-                setError('An error occurred during login.');
+                console.error('Error message:', error.message);
+                setError('An error occurred during login. Please try again.');
             }
             setSuccess('');
         }
     };
 
-    // Logout function
     const handleLogout = async () => {
-        const csrfToken = getCookie('csrftoken'); // Retrieve CSRF token from cookie
-        console.log('Attempting to log out with CSRF Token:', csrfToken); // Log the CSRF token before logout
-
+        const csrfToken = getCookie('csrftoken');
+        const authToken = localStorage.getItem('authToken');
+    
+        if (!csrfToken || !authToken) {
+            console.error('CSRF token or Auth token not found. Cannot log out.');
+            setError("Unable to log out. Please try again.");
+            return;
+        }
+    
         try {
             const response = await axios.post(
                 'http://localhost:8000/auth/logout/',
-                {}, // Empty payload for logout
+                {},
                 {
                     headers: {
-                        'X-CSRFToken': csrfToken, // Include CSRF token
+                        'X-CSRFToken': csrfToken,
+                        'Authorization': `Bearer ${authToken}`
                     },
-                    withCredentials: true,  // Ensure cookies are sent with the request
+                    withCredentials: true,
                 }
             );
-
+    
             console.log('Logout successful:', response.data);
             setSuccess('Logout successful!');
             setError('');
-            setIsLoggedIn(false); // Update the login state
+            setIsLoggedIn(false);
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
         } catch (error) {
             console.error('Logout error:', error);
-            if (error.response) {
-                // Log the full response for debugging
-                console.error('Full response:', error.response);
-                setError(error.response.data.detail || 'An error occurred during logout.');
-            } else {
-                setError('An error occurred during logout.');
-            }
+            setError(error.response?.data?.detail || 'An error occurred during logout.');
         }
     };
-
-    // Log the login status for debugging
-    console.log('Current login status:', isLoggedIn);
+    
+    
 
     return (
         <div className="main-container">
             <div className="form-container">
                 <p className="title">Welcome back!</p>
-
-                {/* Show either login form or logout button based on login state */}
                 {!isLoggedIn ? (
                     <form className="form" onSubmit={handleSubmit}>
                         <div className="input-group">
@@ -181,24 +233,20 @@ const SignInForm = () => {
                         <button type="submit">Sign in</button>
                     </form>
                 ) : (
-                    <button onClick={handleLogout}>Logout</button> // Logout button after successful login
+                    <button onClick={handleLogout}>Logout</button>
                 )}
-
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 {success && <p style={{ color: 'green' }}>{success}</p>}
-
                 <div className="social-message">
                     <div className="line"></div>
                     <p className="message">Login with social accounts</p>
                     <div className="line"></div>
                 </div>
-
                 <div className="social-icons">
                     <button aria-label="Log in with Google" className="icon">
                         {/* Add your Google login icon SVG here */}
                     </button>
                 </div>
-
                 <p className="signup">
                     Don't have an account? <a href="#">Sign up</a>
                 </p>
