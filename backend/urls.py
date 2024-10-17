@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from core.views import home, csrf_token_view, CheckLoginView
+from core.views import LikeToggleView, LikedJerseysView
 
 
 urlpatterns = [
@@ -13,6 +14,8 @@ urlpatterns = [
     path('auth/signup/', include('dj_rest_auth.registration.urls')),
     path('auth/api/csrf-token/', csrf_token_view, name='csrf_token'),
     path('auth/check-login/', CheckLoginView.as_view(), name='check_login'),
+    path('api/jerseys/<int:jersey_id>/likes/', LikeToggleView.as_view(), name='like-toggle'),
+    path('api/jerseys/likes/', LikedJerseysView.as_view(), name='liked_jerseys'), 
 ]
 
 
