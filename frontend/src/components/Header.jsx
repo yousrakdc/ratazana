@@ -32,6 +32,7 @@ const Header = ({ isLoggedIn, onLogout }) => {
             </div>
             <nav className="menu">
                 <Link to="/jerseys">Shop</Link>
+                <Link to="/liked-jerseys"> My Jerseys</Link>
                 {!isLoggedIn ? (
                     <>
                         <Link to="/signup">Sign Up</Link>
