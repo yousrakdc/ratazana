@@ -20,17 +20,33 @@ class CustomUserAdmin(BaseUserAdmin):
 
 class JerseyImageInline(admin.TabularInline):
     model = JerseyImage
-    extra = 1  # Allows to add multiple images in one go
-
-class JerseyAdmin(admin.ModelAdmin):
-    list_display = ('brand', 'team', 'price', 'season', 'is_promoted', 'is_upcoming', 'is_new_release')
-    search_fields = ('brand', 'team')
-    list_filter = ('is_promoted', 'is_upcoming', 'is_new_release')
-    inlines = [JerseyImageInline]  # Add the inline for images
+    extra = 1
     
+class JerseyAdmin(admin.ModelAdmin):
+    list_display = ('brand', 'team', 'price', 'season', 'original_url', 'sizes','is_promoted', 'is_upcoming', 'is_new_release')
+    search_fields = ('brand', 'team', 'original_url', 'sizes')
+    list_filter = ('is_promoted', 'is_upcoming', 'is_new_release')
+    inlines = [JerseyImageInline]
+
+    # Override save_model to log price history when a price is updated
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_price = Jersey.objects.get(pk=obj.pk).price
+
+            # Check if the price has changed
+            if obj.price != old_price:
+                PriceHistory.objects.create(jersey=obj, price=obj.price)
+
+        super().save_model(request, obj, form, change)
+    
+@admin.register(PriceHistory)
+class PriceHistoryAdmin(admin.ModelAdmin):
+    list_display = ('jersey', 'price', 'date')
+    ordering = ('-date',)
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Jersey, JerseyAdmin)
-admin.site.register(PriceHistory)
 admin.site.register(Like)
 admin.site.register(Alert)
 
