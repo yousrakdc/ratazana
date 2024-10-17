@@ -5,7 +5,11 @@ import SignInForm from './components/auth/SignInForm';
 import SignUpForm from './components/auth/SignUpForm';
 import Layout from './components/Layout';
 import LandingPage from './components/landing_page/LandingPage';
-import JerseyDetail from './components/jerseys/JerseyDetail'; // Import JerseyDetail if you need to display jersey details
+import JerseyDetail from './components/jerseys/JerseyDetail';
+import PromotedJerseys from './components/landing_page/PromotedJerseys';
+import NewReleases from './components/landing_page/NewReleases'; 
+import UpcomingJerseys from './components/landing_page/UpcomingJerseys';
+import LikedJerseys from './components/jerseys/LikedJerseys';
 
 const AppRoutes = () => {
   return (
@@ -14,9 +18,13 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/jerseys" element={<JerseyList />} />
-          <Route path="/jerseys/:id" element={<JerseyDetail />} /> {/* Ensure to include this for details */}
+          <Route path="/jerseys/:id" element={<JerseyDetail />} />
           <Route path="/login" element={<SignInForm />} />
           <Route path="/signup" element={<SignUpForm />} />
+          <Route path="/promoted" element={<PromotedJerseys />} />
+          <Route path="/new-releases" element={<NewReleases />} />
+          <Route path="/upcoming" element={<UpcomingJerseys />} />
+          <Route path="/liked-jerseys" element={ <LikedJerseys />} />
         </Routes>
       </Layout>
     </Router>

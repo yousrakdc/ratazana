@@ -5,6 +5,7 @@ import JerseyList from './components/jerseys/JerseyList';
 import SignInForm from './components/auth/SignInForm';
 import SignUpForm from './components/auth/SignUpForm';
 import LandingPage from './components/landing_page/LandingPage';
+import LikedJerseys from "./components/jerseys/LikedJerseys"; 
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -108,6 +109,7 @@ const App = () => {
                     <Route path="/signup" element={<SignUpForm onLogin={handleLogin} />} />
                     <Route path="/login" element={<SignInForm onLogin={handleLogin} />} />
                     <Route path="/jerseys" element={<JerseyList />} />
+                    <Route path="/liked-jerseys" component={LikedJerseys} />
                 </Routes>
             </Layout>
         </Router>
