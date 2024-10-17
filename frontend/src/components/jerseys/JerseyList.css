@@ -68,3 +68,15 @@
 .image-wrapper:hover .hover-image {
   opacity: 1; /* Fade in the second image */
 }
+
+.price-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  font-size: 1.2rem; /* Keep this for the heart icon alignment */
+}
+
+/* Styling for jersey price */
+.jersey-price {
+  margin-right: 75px; /* Space between the price and the heart icon */
+  font-size: 1rem; /* Change the font size to make it smaller */
+}

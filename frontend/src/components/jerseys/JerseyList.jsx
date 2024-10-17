@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../Layout'; // Ensure Layout wraps the content
 import Filter from './Filter';
+import Heart from './Heart'; // Updated import to Heart
 import './JerseyList.css';
+
+// Define a fallback image path
+const FALLBACK_IMAGE_PATH = '/path/to/fallback/image.png'; // Update this to your actual fallback image path
 
 const JerseyList = () => {
     const [jerseys, setJerseys] = useState([]);
     const [filteredJerseys, setFilteredJerseys] = useState([]);
     const [filters, setFilters] = useState({ team: [], country: [], color: [], price: [] });
+    const [likedJerseys, setLikedJerseys] = useState([]); // State to manage liked jerseys
     const [error, setError] = useState(null);
 
     // Fetch jerseys from the API
@@ -41,47 +46,56 @@ const JerseyList = () => {
         });
     };
 
-// Apply filtering logic based on selected filters
-useEffect(() => {
-    let filtered = jerseys;
+    // Apply filtering logic based on selected filters
+    useEffect(() => {
+        let filtered = jerseys;
 
-    // Filter by team
-    if (filters.team.length > 0) {
-        filtered = filtered.filter((jersey) => {
-            // Check if the jersey's team is included in the selected filters
-            return filters.team.some((filterTeam) => 
-                jersey.team.toLowerCase().includes(filterTeam.toLowerCase())
+        // Filter by team
+        if (filters.team.length > 0) {
+            filtered = filtered.filter((jersey) =>
+                filters.team.some((filterTeam) =>
+                    jersey.team.toLowerCase().includes(filterTeam.toLowerCase())
+                )
             );
-        });
-    }
-    // Filter by country
-    if (filters.country.length > 0) {
-        filtered = filtered.filter((jersey) => filters.country.includes(jersey.country));
-    }
-    // Filter by color
-    if (filters.color.length > 0) {
-        filtered = filtered.filter((jersey) => {
-            return filters.color.some((filterColor) => 
-                jersey.color.toLowerCase().includes(filterColor.toLowerCase())
+        }
+
+        // Filter by country
+        if (filters.country.length > 0) {
+            filtered = filtered.filter((jersey) => filters.country.includes(jersey.country));
+        }
+
+        // Filter by color
+        if (filters.color.length > 0) {
+            filtered = filtered.filter((jersey) =>
+                filters.color.some((filterColor) =>
+                    jersey.color.toLowerCase().includes(filterColor.toLowerCase())
+                )
             );
-        });
-    }
-    // Filter by price range
-    if (filters.price.length > 0) {
-        filtered = filtered.filter((jersey) => {
-            const price = parseFloat(jersey.price);
-            return filters.price.some((range) => {
-                const [min, max] = range.split('-').map(Number);
-                return price >= min && price <= max;
+        }
+
+        // Filter by price range
+        if (filters.price.length > 0) {
+            filtered = filtered.filter((jersey) => {
+                const price = parseFloat(jersey.price);
+                return filters.price.some((range) => {
+                    const [min, max] = range.split('-').map(Number);
+                    return price >= min && price <= max;
+                });
             });
+        }
+
+        setFilteredJerseys(filtered); // Update the state with filtered jerseys
+    }, [filters, jerseys]);
+
+    // Toggle liked state for a jersey
+    const toggleLike = (id) => {
+        setLikedJerseys((prev) => {
+            if (prev.includes(id)) {
+                return prev.filter((jerseyId) => jerseyId !== id); // Remove from liked
+            }
+            return [...prev, id]; // Add to liked
         });
-    }
-
-    setFilteredJerseys(filtered); // Update the state with filtered jerseys
-}, [filters, jerseys]);
-
-
-
+    };
 
     // Display error message if fetch fails
     if (error) {
@@ -89,42 +103,52 @@ useEffect(() => {
     }
 
     return (
-            <div className="jersey-page">
-                <aside className="filter-sidebar">
-                    <Filter onFilterChange={handleFilterChange} />
-                </aside>
-                <main className="jersey-list-container">
-                    <div className="jersey-list">
-                        {filteredJerseys.length > 0 ? (
-                            filteredJerseys.map((jersey) => (
-                                <div key={jersey.id} className="jersey-item">
-                                    <Link to={`/jerseys/${jersey.id}`} className="image-container">
-                                        <div className="image-wrapper">
+        <div className="jersey-page">
+            <aside className="filter-sidebar">
+                <Filter onFilterChange={handleFilterChange} />
+            </aside>
+            <main className="jersey-list-container">
+                <div className="jersey-list">
+                    {filteredJerseys.length > 0 ? (
+                        filteredJerseys.map((jersey) => (
+                            <div key={jersey.id} className="jersey-item">
+                                <Link to={`/jerseys/${jersey.id}`} className="image-container">
+                                    <div className="image-wrapper">
+                                        {/* Check if images exist and safely access image paths */}
+                                        <img
+                                            src={
+                                                jersey.images && jersey.images.length > 0
+                                                    ? `http://localhost:8000${jersey.images[0]?.image_path || FALLBACK_IMAGE_PATH}`
+                                                    : FALLBACK_IMAGE_PATH // Use fallback if no images
+                                            }
+                                            alt={jersey.team}
+                                            className="jersey-image"
+                                        />
+                                        {jersey.images && jersey.images.length > 1 && (
                                             <img
-                                                src={`http://localhost:8000${jersey.images[0].image_path}`}
+                                                src={`http://localhost:8000${jersey.images[1]?.image_path || FALLBACK_IMAGE_PATH}`}
                                                 alt={jersey.team}
-                                                className="jersey-image"
+                                                className="jersey-image hover-image"
                                             />
-                                            {jersey.images.length > 1 && (
-                                                <img
-                                                    src={`http://localhost:8000${jersey.images[1].image_path}`}
-                                                    alt={jersey.team}
-                                                    className="jersey-image hover-image"
-                                                />
-                                            )}
-                                        </div>
-                                    </Link>
-                                    <h3 className="jersey-team-name">{jersey.team}</h3>
-                                    <p>£{jersey.price}</p>
+                                        )}
+                                    </div>
+                                </Link>
+                                <h3 className="jersey-team-name">{jersey.team}</h3>
+                                <div className="price-container">
+                                    <p className="jersey-price">£{jersey.price}</p>
+                                    <Heart
+                                        checked={likedJerseys.includes(jersey.id)} // Check if this jersey is liked
+                                        onChange={() => toggleLike(jersey.id)} // Toggle like on checkbox change
+                                    />
                                 </div>
-                            ))
-                        ) : (
-                            <p>No jerseys available.</p>
-                        )}
-                    </div>
-                </main>
-            </div>
-
+                            </div>
+                        ))
+                    ) : (
+                        <p>No jerseys available.</p>
+                    )}
+                </div>
+            </main>
+        </div>
     );
 };
 

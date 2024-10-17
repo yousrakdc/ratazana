@@ -1,0 +1,71 @@
+.likedJerseysWrapper {
+    padding: 20px;
+    text-align: center;
+}
+
+.likedJerseysLoadingMessage {
+    font-size: 18px;
+}
+
+.likedJerseysErrorMessage {
+    color: red;
+    font-size: 18px;
+}
+
+/* General styling for jersey list */
+.likedJerseysList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Similar grid structure */
+    gap: 10px;
+    justify-content: center; /* Center the cards */
+}
+
+/* Each jersey item */
+.likedJerseyItem {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: transform 0.2s;
+    position: relative; /* Position for image wrapper */
+    overflow: hidden; /* Hide overflow */
+}
+
+/* Hover effect on jersey items */
+.likedJerseyItem:hover {
+    transform: scale(1.05);
+}
+
+/* Image wrapper for consistent sizing */
+.likedJerseyImageWrapper {
+    position: relative;
+    height: 200px; /* Set a fixed height for images to maintain uniformity */
+    overflow: hidden; /* Hide overflow */
+}
+
+/* Set jersey image size to be consistent */
+.likedJerseyImage {
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    object-fit: cover; /* Ensure the image covers the entire area */
+    transition: opacity 0.5s ease-in-out; /* Transition for opacity */
+}
+
+/* Price container styling */
+.likedJerseyPriceContainer {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    font-size: 1.2rem; /* Keep this for the heart icon alignment */
+}
+
+/* Styling for jersey price */
+.likedJerseyPrice {
+    margin-right: 10px; /* Space between the price and the heart icon */
+    font-size: 1rem; /* Change the font size to make it smaller */
+}
+
+/* Remove underline from team names */
+.likedJerseyItem h2 {
+    text-decoration: none; /* Remove underline */
+    margin: 10px 0; /* Add margin for spacing */
+}
