@@ -40,7 +40,6 @@ class JerseySerializer(serializers.ModelSerializer):
         # Store the old price before updating
         old_price = instance.price
         
-        # Update the instance
         instance = super().update(instance, validated_data)
 
         # Create a price history entry only if the price has changed
@@ -106,7 +105,14 @@ class PriceHistorySerializer(serializers.ModelSerializer):
         return representation
     
 class AlertSerializer(serializers.ModelSerializer):
+    jersey = JerseySerializer(read_only=True)
+
     class Meta:
         model = Alert
         fields = ['id', 'user', 'jersey', 'target_price', 'created_at']
         read_only_fields = ['user', 'created_at']
+    
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['user'] = request.user 
+        return super().create(validated_data)
