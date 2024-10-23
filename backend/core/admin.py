@@ -28,12 +28,10 @@ class JerseyAdmin(admin.ModelAdmin):
     list_filter = ('is_promoted', 'is_upcoming', 'is_new_release')
     inlines = [JerseyImageInline]
 
-    # Override save_model to log price history when a price is updated
     def save_model(self, request, obj, form, change):
         if change:
             old_price = Jersey.objects.get(pk=obj.pk).price
 
-            # Check if the price has changed
             if obj.price != old_price:
                 PriceHistory.objects.create(jersey=obj, price=obj.price)
 
