@@ -317,7 +317,7 @@ class Command(BaseCommand):
         'Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36'
     ]
 
-    IMAGE_DIR = 'media/jerseys/'  # Directory to save images
+    IMAGE_DIR = 'media/jerseys/'
 
     def normalize_team_name(self, team):
         team = team.replace('.', '').strip()
@@ -485,7 +485,7 @@ class Command(BaseCommand):
         return Decimal('0.00')
 
     def get_release_date(self, description):
-        date_match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', description)  # Format: MM/DD/YYYY
+        date_match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', description)
         if date_match:
             return datetime.strptime(date_match.group(0), '%d/%m/%Y')
         return None
