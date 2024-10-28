@@ -27,6 +27,10 @@ from pathlib import Path
 import random 
 import string 
 from django.shortcuts import get_object_or_404
+from django.db import transaction
+from rest_framework import status
+from .tasks import check_prices_and_notify
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -54,7 +58,6 @@ class JerseyListView(APIView):
         serializer = JerseySerializer(jerseys, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 class JerseyDetailView(APIView):
     permission_classes = [AllowAny]
 
@@ -63,6 +66,7 @@ class JerseyDetailView(APIView):
         serializer = JerseySerializer(jersey)
         return Response(serializer.data)
 
+    @transaction.atomic  # Ensure atomicity
     def put(self, request, id):
         jersey = get_object_or_404(Jersey, id=id)
         old_price = jersey.price  # Store the old price before updating
@@ -74,19 +78,26 @@ class JerseyDetailView(APIView):
             # Log price history if the price has changed
             if updated_jersey.price != old_price:
                 PriceHistory.objects.create(jersey=updated_jersey, price=updated_jersey.price)
+                logger.info(f"Price updated for Jersey ID {updated_jersey.id}: {old_price} -> {updated_jersey.price}")
+
                 # Check alerts after price change
                 self.check_alerts(updated_jersey)
 
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
+        logger.error(f"Update failed for Jersey ID {id}: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def check_alerts(self, jersey):
+        # Fetch active alerts related to this jersey
         alerts = Alert.objects.filter(jersey=jersey, status='active')
-        for alert in alerts:
-            alert.check_trigger()
-
-
+        if alerts.exists():
+            logger.info(f"Checking alerts for Jersey ID {jersey.id}")
+            for alert in alerts:
+                alert.check_trigger()
+                logger.info(f"Triggered alert for Jersey ID {jersey.id} and Alert ID {alert.id}")
+        else:
+            logger.info(f"No active alerts for Jersey ID {jersey.id}")
 
 @ensure_csrf_cookie
 def csrf_token_view(request):
@@ -222,11 +233,8 @@ class PriceHistoryView(generics.ListAPIView):
 
     def get_queryset(self):
         jersey_id = self.kwargs['id']
-        try:
-            jersey = Jersey.objects.get(id=jersey_id)
-            return jersey.price_history.all().order_by('date')
-        except Jersey.DoesNotExist:
-            raise NotFound("Jersey not found")
+        jersey = get_object_or_404(Jersey, id=jersey_id)
+        return jersey.price_history.all().order_by('date')
 
 
 class AlertCreateView(generics.CreateAPIView):
@@ -374,3 +382,23 @@ def oauth2callback(request):
 
 def success_view(request):
     return HttpResponse("Authentication successful! You can now use the app.")
+
+@csrf_exempt
+def temporary_price_drop(request, jersey_id):
+    if request.method == 'POST':
+        jersey = get_object_or_404(Jersey, id=jersey_id)
+
+        # Reduce the price by £5
+        new_price = jersey.price - 5
+        jersey.price = new_price
+        jersey.save()
+
+        # Log this price change in the price history
+        PriceHistory.objects.create(jersey=jersey, price=new_price)
+
+        # Trigger the notification task with the jersey_id
+        check_prices_and_notify.delay(jersey.id)  # Use .delay() to call the Celery task
+
+        return JsonResponse({'message': 'Price dropped and email notification triggered.'}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
