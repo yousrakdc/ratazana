@@ -10,16 +10,17 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.mime.text import MIMEText
 import os
-from decimal import Decimal
+from django.db import transaction
 
-
+# Set up logging
 logger = logging.getLogger(__name__)
 
+# Define the base directory for file path management
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Path to the OAuth2 token for Gmail API
 token_path = os.path.join(BASE_DIR, 'backend/core/token.json')
 print(f"Token path: {token_path}")
-
 
 def send_email_via_gmail_api(to_email, subject, body):
     """Send an email using Gmail API."""
@@ -58,6 +59,47 @@ def send_email_via_gmail_api(to_email, subject, body):
         logger.error(f'An error occurred: {error}')
     except Exception as e:
         logger.error(f"Failed to send email: {str(e)}")
+        
+@shared_task(name='core.tasks.update_jersey_prices', max_retries=0)
+def update_jersey_prices():
+    update_report = {
+        "total_processed": 0,
+        "successfully_updated": 0,
+        "errors": [],
+        "no_change": 0
+    }
+    
+    try:
+        scraped_data = scrape_jerseys()
+        
+        if not scraped_data:
+            logger.warning("No data returned from scrape_jerseys.")
+            return "No data to update prices.", update_report
+
+        with transaction.atomic():
+            for jersey_data in scraped_data:
+                update_report["total_processed"] += 1
+                try:
+                    jersey = Jersey.objects.get(id=jersey_data['id'])
+                    if jersey.price != jersey_data['new_price']:
+                        old_price = jersey.price
+                        jersey.price = jersey_data['new_price']
+                        jersey.save()
+                        notify_price_drop(jersey)
+                        update_report["successfully_updated"] += 1
+                        logger.info(f"Updated jersey {jersey.id} price from {old_price} to {jersey.price}")
+                    else:
+                        update_report["no_change"] += 1
+                except Exception as e:
+                    update_report["errors"].append(f"Error updating jersey {jersey_data['id']}: {str(e)}")
+                    logger.error(f"Error updating jersey {jersey_data['id']}: {str(e)}")
+
+        return "Price update completed", update_report
+    except Exception as e:
+        logger.error(f"Error in update_jersey_prices: {str(e)}")
+        update_report["errors"].append(f"General error: {str(e)}")
+        return f"Error updating prices: {str(e)}", update_report
+
 
 @shared_task
 def send_email_notification(email, jersey_id, new_price):
@@ -75,24 +117,42 @@ def send_email_notification(email, jersey_id, new_price):
         logger.error(f"Jersey with ID {jersey_id} does not exist.")
     except Exception as e:
         logger.error(f"Failed to send email: {str(e)}")
-        
-@shared_task
-def check_prices_and_notify():
-    liked_jerseys = Like.objects.select_related('jersey', 'user').all()
-    logger.info(f"Checking prices for {len(liked_jerseys)} liked jerseys.")
+
+@shared_task(name='core.tasks.check_prices_and_notify')
+def check_prices_and_notify(jersey_id):  # Ensure it accepts the jersey_id parameter
+    try:
+        # Fetch the jersey by its ID
+        jersey = Jersey.objects.get(id=jersey_id)
+    except Jersey.DoesNotExist:
+        logger.warning(f"Jersey with id {jersey_id} does not exist.")
+        return
+
+    liked_jerseys = Like.objects.filter(jersey=jersey).select_related('user')
     
-    for liked_jersey in liked_jerseys:
-        jersey = liked_jersey.jersey
-        current_price = jersey.get_current_price()
-        logger.info(f"Current price for {jersey}: {current_price}, Last known price: {jersey.last_known_price}")
-        
+    if not liked_jerseys.exists():
+        logger.warning("No users liked this jersey.")
+        return
+
+    logger.info(f"Checking prices for {jersey}: {len(liked_jerseys)} users liked this jersey.")
+    
+    current_price = jersey.get_current_price()
+
+    logger.info(f"Current price for {jersey}: {current_price}, Last known price: {jersey.last_known_price}")
+
+    if current_price is not None and jersey.last_known_price is not None:
         if current_price < jersey.last_known_price:
             logger.info(f"Price drop detected for {jersey}: from {jersey.last_known_price} to {current_price}")
-            notify_price_drop(liked_jersey.user, jersey, current_price)
+
+            for liked_jersey in liked_jerseys:
+                notify_price_drop(liked_jersey.user, jersey, current_price)
+
             jersey.last_known_price = current_price
             jersey.save()
         else:
             logger.info(f"No price drop for {jersey}.")
+    else:
+        logger.warning(f"Price data is missing for {jersey}.")
+
 
 def notify_price_drop(user, jersey, current_price):
     """Notify user about the price drop of a liked jersey."""
