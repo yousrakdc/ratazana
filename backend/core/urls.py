@@ -18,10 +18,11 @@ from .views import (
     MarkAlertViewedView,
     start_oauth,
     oauth2callback,
-    success_view,     
+    success_view, 
 )
 
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from . import views
 
 urlpatterns = [
     # Home view
@@ -61,6 +62,8 @@ urlpatterns = [
     path('start_oauth/', start_oauth, name='start_oauth'),
     path('oauth2callback/', oauth2callback, name='oauth2callback'),
     path('success/', success_view, name='success_url'),
+    
+    path('api/jerseys/<int:jersey_id>/temporary-price-drop/', views.temporary_price_drop, name='temporary_price_drop'),
 
 ]
 
