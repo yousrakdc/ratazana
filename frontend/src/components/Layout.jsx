@@ -3,13 +3,15 @@ import Header from './Header';
 import './Layout.css';
 
 const Layout = ({ children, isLoggedIn, onLogout }) => {
-    console.log('Layout isLoggedIn before rendering:', isLoggedIn); // Debugging line
+    console.log('Layout isLoggedIn:', isLoggedIn);
     return (
         <div className="layout">
             <Header isLoggedIn={isLoggedIn} onLogout={onLogout} />
-            <main>{children}</main>
-            <footer>
-                <p>© 2024 Ratazana. All rights reserved.</p>
+            <main className="main-content">
+                {children}
+            </main>
+            <footer className="footer">
+                <p>2024 Ratazana. All rights reserved.</p>
             </footer>
         </div>
     );
