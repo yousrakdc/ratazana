@@ -331,7 +331,7 @@ def start_oauth(request):
         SCOPES
     )
     
-    flow.redirect_uri = 'https://68ef-77-136-104-119.ngrok-free.app/oauth2callback/'
+    flow.redirect_uri = 'https://c347-77-136-104-119.ngrok-free.app/oauth2callback/'
 
     # Generate the authorization URL with the correct scope
     authorization_url, state = flow.authorization_url(
@@ -359,7 +359,7 @@ def oauth2callback(request):
         SCOPES
     )
     
-    flow.redirect_uri = 'https://68ef-77-136-104-119.ngrok-free.app/oauth2callback/'
+    flow.redirect_uri = 'https://c347-77-136-104-119.ngrok-free.app/oauth2callback/'
 
     try:
         flow.fetch_token(code=code)

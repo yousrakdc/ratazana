@@ -24,6 +24,8 @@ print(f"Token path: {token_path}")
 
 def send_email_via_gmail_api(to_email, subject, body):
     """Send an email using Gmail API."""
+    logger.info(f"Preparing to send email to {to_email} with subject '{subject}'")
+
     try:
         # Load OAuth2 credentials from token.json
         credentials = Credentials.from_authorized_user_file(token_path, scopes=[
@@ -33,7 +35,13 @@ def send_email_via_gmail_api(to_email, subject, body):
 
         # Refresh credentials if expired
         if credentials.expired and credentials.refresh_token:
+            logger.info("Credentials expired. Refreshing...")
             credentials.refresh(Request())
+            logger.info("Credentials refreshed.")
+        elif credentials.expired:
+            logger.warning("Credentials have expired and cannot be refreshed. Re-authenticating...")
+            # Code to re-authenticate the user and obtain a new token
+            # This might involve redirecting to a consent page and obtaining a new token
 
         # Build the Gmail API service
         service = build('gmail', 'v1', credentials=credentials)
@@ -46,6 +54,7 @@ def send_email_via_gmail_api(to_email, subject, body):
 
         # Encode the message
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        logger.info("Email message encoded.")
 
         # Prepare the email message for sending
         message_body = {
@@ -54,12 +63,13 @@ def send_email_via_gmail_api(to_email, subject, body):
 
         # Send the email
         service.users().messages().send(userId='me', body=message_body).execute()
-        print(f"Email sent successfully to {to_email}")
+        logger.info(f"Email sent successfully to {to_email}")
     except HttpError as error:
         logger.error(f'An error occurred: {error}')
     except Exception as e:
         logger.error(f"Failed to send email: {str(e)}")
-        
+
+     
 @shared_task(name='core.tasks.update_jersey_prices', max_retries=0)
 def update_jersey_prices():
     update_report = {
@@ -169,3 +179,9 @@ def scrape_jerseys():
         logger.info("Jersey scraping task completed successfully.")
     except Exception as e:
         logger.error(f"Error during jersey scraping task: {str(e)}")
+
+@shared_task
+def check_prices_and_notify_all():
+    jerseys = Jersey.objects.all()
+    for jersey in jerseys:
+        check_prices_and_notify.delay(jersey.id)
