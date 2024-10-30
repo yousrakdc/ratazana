@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './SignUpForm.css';
 
 // Function to retrieve CSRF token from cookies
@@ -25,6 +26,7 @@ function SignUpForm() {
     const [password2, setPassword2] = useState('');
     const [errors, setErrors] = useState({});
     const [csrfToken, setCsrfToken] = useState('');
+    const navigate = useNavigate();
 
     // Get CSRF token from the server when the component mounts
     useEffect(() => {
@@ -68,15 +70,16 @@ function SignUpForm() {
             );
 
             console.log('Signup successful:', response.data);
-            // Here, check for the access token and refresh token
+            // check for the access token and refresh token
             if (response.data && response.data.access) {
-                localStorage.setItem('authToken', response.data.access);  // Store access token
-                localStorage.setItem('refreshToken', response.data.refresh);  // Store refresh token
+                localStorage.setItem('authToken', response.data.access);  
+                localStorage.setItem('refreshToken', response.data.refresh);
+                navigate('/');
             }
         } catch (error) {
             console.error('Signup error:', error);
             if (error.response && error.response.data) {
-                setErrors(error.response.data); // Set specific field errors if present
+                setErrors(error.response.data);
             } else {
                 setErrors({ detail: 'An error occurred during sign-up.' });
             }
@@ -135,16 +138,7 @@ function SignUpForm() {
                     <button type="submit">Sign Up</button>
                 </form>
                 {errors.detail && <p style={{ color: 'red' }}>{errors.detail}</p>}
-                <div className="social-message">
-                    <div className="line"></div>
-                    <p className="message">Signup with social accounts</p>
-                    <div className="line"></div>
-                </div>
-                <div className="social-icons">
-                    <button aria-label="Sign up with Google" className="icon">
-                        {/* Add Google sign-up SVG here */}
-                    </button>
-                </div>
+
                 <p className="signup">
                     Already have an account? <a href="#">Sign in</a>
                 </p>
