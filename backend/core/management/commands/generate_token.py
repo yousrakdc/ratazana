@@ -11,7 +11,6 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.modify'
 ]
 
-
 class Command(BaseCommand):
     help = 'Generates a new OAuth2 token for Gmail API.'
 
@@ -20,8 +19,8 @@ class Command(BaseCommand):
 
         creds = None
         # Load existing credentials if they exist
-        if os.path.exists(os.path.join(BASE_DIR, 'token.pickle')):
-            with open(os.path.join(BASE_DIR, 'token.pickle'), 'rb') as token:
+        if os.path.exists(os.path.join(BASE_DIR, 'token.json')):
+            with open(os.path.join(BASE_DIR, 'token.json'), 'rb') as token:
                 creds = pickle.load(token)
 
         # If no valid credentials, let the user log in
@@ -29,12 +28,16 @@ class Command(BaseCommand):
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
+                # Initialize the OAuth2 flow
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    os.path.join(BASE_DIR, 'management', 'commands', 'credentials.json'), SCOPES)
-                creds = flow.run_local_server(port=0)
+                    os.path.join(BASE_DIR, 'management', 'commands', 'credentials.json'),
+                    SCOPES
+                )
+                # Run the local server for authorization
+                creds = flow.run_local_server(port=8080) 
 
             # Save the credentials
-            with open(os.path.join(BASE_DIR, 'management', 'commands', 'token.json'), 'w') as token_file:
+            with open(os.path.join(BASE_DIR, 'token.json'), 'w') as token_file:
                 token_file.write(creds.to_json())
 
         self.stdout.write(self.style.SUCCESS('Token generated successfully.'))
