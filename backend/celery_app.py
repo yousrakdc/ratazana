@@ -1,31 +1,33 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
-from django.core.mail import send_mail
-import logging
 
-# Set up the Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 
-# Define your Celery application
 app = Celery('backend')
 
-# Use Redis as the message broker
-app.conf.broker_url = 'redis://localhost:6379/0'  # Update if needed
+app.conf.broker_url = 'redis://localhost:6379/0'
 
-# Load configuration from the config module
-app.config_from_object('backend.celeryconfig')
+app.autodiscover_tasks()
 
-# Auto-discover tasks in the backend module
-app.autodiscover_tasks(['backend'])
+@app.task(bind=True)
+def debug_task(self):
+    print(f'Request: {self.request!r}')
 
-# Set up the Celery beat schedule to run daily
+
+# Celery beat schedule to run regularly
 app.conf.beat_schedule = {
+    'check-prices-and-notify-every-30-minutes': {
+        'task': 'core.tasks.check_prices_and_notify_all',
+        'schedule': crontab(minute='*/30'),
+    },
     'scrape-jerseys-daily': {
-        'task': 'backend.core.tasks.scrape_jerseys',  # Ensure the correct path
-        'schedule': crontab(hour=0, minute=0),  # Run once a day at midnight
+        'task': 'core.tasks.scrape_jerseys',
+        'schedule': crontab(hour=0, minute=0),
+    },
+    'update-prices-every-hour': {
+        'task': 'core.tasks.update_jersey_prices',
+        'schedule': crontab(hour=0, minute=0),
+        'args': (),
     },
 }
-
-# Set up logging
-logger = logging.getLogger(__name__)
