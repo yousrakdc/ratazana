@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import Heart from './Heart';
 import './JerseyDetail.css';
 import jwt_decode from 'jwt-decode'; 
 import PriceTracker from '../data/PriceTracker'; 
+import NotificationCard from '../alert/NotificationCard'; 
 
 function JerseyDetail() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [jersey, setJersey] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [priceData, setPriceData] = useState([]); // State for price data
-    const [isAlertSet, setIsAlertSet] = useState(false); // State to track if alert is set
-    const [lastPrice, setLastPrice] = useState(null); // Track last price for comparison
+    const [priceData, setPriceData] = useState([]);
+    const [lastPrice, setLastPrice] = useState(null);
+    const [alertMessage, setAlertMessage] = useState(null);
+    const [priceDropMessage, setPriceDropMessage] = useState(null);
+    const [temporaryButtonText, setTemporaryButtonText] = useState('Price Drop Alert');
 
-    // Function to get CSRF token from cookies
     const getCsrfToken = () => {
         const cookieValue = document.cookie
             .split('; ')
@@ -25,7 +28,6 @@ function JerseyDetail() {
         return cookieValue ? cookieValue.split('=')[1] : null;
     };
 
-    // Function to refresh access token if expired
     const refreshAccessToken = async (refreshToken) => {
         const csrfToken = getCsrfToken();
         const response = await fetch('http://localhost:8000/auth/token/refresh/', {
@@ -46,7 +48,6 @@ function JerseyDetail() {
         }
     };
 
-    // Fetch jersey details and price history
     useEffect(() => {
         const fetchJersey = async () => {
             try {
@@ -56,7 +57,6 @@ function JerseyDetail() {
                 if (token) {
                     const decoded = jwt_decode(token);
                     const currentTime = Math.floor(Date.now() / 1000);
-                    // Refresh token if expired
                     if (decoded.exp < currentTime && refreshToken) {
                         token = await refreshAccessToken(refreshToken);
                     }
@@ -69,7 +69,6 @@ function JerseyDetail() {
                     'X-CSRFToken': csrfToken,
                 };
 
-                // Fetch jersey data
                 const jerseyResponse = await fetch(`http://localhost:8000/api/jerseys/${id}/`, {
                     headers: headers,
                 });
@@ -79,14 +78,9 @@ function JerseyDetail() {
                 }
 
                 const jerseyData = await jerseyResponse.json();
-                console.log('Fetched Jersey Data:', jerseyData); // Log the entire jersey object
                 setJersey(jerseyData);
-                setLastPrice(jerseyData.price); // Set the initial price for comparison
+                setLastPrice(jerseyData.price);
 
-                // Log the original URL for debugging
-                console.log('Original URL:', jerseyData.original_url || 'No URL available');
-
-                // Fetch price history data
                 const priceResponse = await fetch(`http://localhost:8000/api/jerseys/${id}/price-history/`, {
                     headers: headers,
                 });
@@ -95,10 +89,9 @@ function JerseyDetail() {
                 }
 
                 const priceHistory = await priceResponse.json();
-                console.log('Fetched price history:', priceHistory);
                 setPriceData(priceHistory);
+                checkPriceDecrease(priceHistory, parseFloat(jerseyData.price));
 
-                // Fetch likes data only if authenticated
                 if (token) {
                     const likesResponse = await fetch(`http://localhost:8000/api/jerseys/${id}/likes/`, {
                         headers: headers,
@@ -124,40 +117,73 @@ function JerseyDetail() {
         setIsAuthenticated(!!token);
     }, []);
 
-    // New function to handle setting the alert for price decrease
-    const handleSetAlert = () => {
-        if (isAlertSet) {
-            alert("Price alert is already set!");
+    const checkPriceDecrease = (priceHistory, currentPrice) => {
+        currentPrice = parseFloat(currentPrice);
+    
+        if (priceHistory.length === 0) {
+            setPriceDropMessage(null);
             return;
         }
-
-        // Set an alert for price decrease
-        setIsAlertSet(true);
-        alert("Price alert is set! You will be notified if the price decreases.");
-    };
-
-    // Function to check price decrease
-    const checkPriceDecrease = () => {
-        if (jersey && lastPrice !== null && jersey.price < lastPrice) {
-            alert(`Price decreased! New price: £${jersey.price}`);
-            setLastPrice(jersey.price); // Update the last price
+    
+        const oldestPrice = parseFloat(priceHistory[0].price);
+        const highestPrice = Math.max(...priceHistory.map(record => parseFloat(record.price)));
+    
+        if (currentPrice < oldestPrice) {
+            const decreasePercentage = ((oldestPrice - currentPrice) / oldestPrice * 100).toFixed(2);
+            const message = `Price dropped by ${decreasePercentage}% since ${new Date(priceHistory[0].date).toLocaleDateString()}! New price: £${currentPrice}`;
+            setPriceDropMessage(message);
+        } else if (currentPrice < highestPrice) {
+            const decreasePercentage = ((highestPrice - currentPrice) / highestPrice * 100).toFixed(2);
+            const message = `Price is down ${decreasePercentage}% from its peak of £${highestPrice}!`;
+            setPriceDropMessage(message);
+        } else {
+            setPriceDropMessage(null);
         }
     };
 
-    // Set an interval to check for price decrease every minute (or set as needed)
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            checkPriceDecrease();
-        }, 60000); // Check every 60 seconds
-
-        return () => clearInterval(intervalId); // Clear the interval on unmount
-    }, [jersey]);
-
-    const handleToggleLike = (liked) => {
+    const handleToggleLike = async (liked) => {
         setIsLiked(liked);
+        const message = liked ? "You liked this jersey! Price alert is set." : "You unliked this jersey.";
+        console.log("Setting alert message:", message);
+        setAlertMessage(message);
+        
+        clearTimeout(window.notificationTimeout);
+        
+        window.notificationTimeout = setTimeout(() => {
+            setAlertMessage(null);
+        }, 3000);
+        
+        console.log("Alert message state updated:", alertMessage);
     };
 
-    // Loading and error handling
+    const handleCloseNotification = () => {
+        setAlertMessage(null);
+        setPriceDropMessage(null);
+    };
+
+    const handleTemporaryButtonClick = async () => {
+        const token = localStorage.getItem('authToken');
+    
+        try {
+            const response = await fetch(`http://localhost:8000/api/jerseys/${id}/temporary-price-drop/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'X-CSRFToken': getCsrfToken(),
+                },
+            });
+    
+            if (response.ok) {
+                console.log("Price dropped successfully!");
+            } else {
+                console.error("Error triggering price drop:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error triggering price drop", error);
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -168,7 +194,6 @@ function JerseyDetail() {
         return <div>Jersey not found</div>;
     }
 
-    // Process sizes from jersey data
     let processedSizes = [];
     if (jersey.sizes) {
         if (typeof jersey.sizes === 'string') {
@@ -182,93 +207,131 @@ function JerseyDetail() {
         dots: true,
         infinite: true,
         speed: 500,
-        slidesToShow: 3,
+        slidesToShow: 1,
         slidesToScroll: 1,
         autoplay: true,
         autoplaySpeed: 3000,
     };
 
     return (
-        <div className="jersey-details-container">
-            <div className="image-carousel">
-                {jersey.images && jersey.images.length > 0 ? (
-                    <Slider {...settings}>
-                        {jersey.images.map((image, index) => (
-                            <div key={index}>
-                                <img
-                                    src={`http://localhost:8000${image.image_path}`}
-                                    alt={jersey.team}
-                                    className="jersey-image"
+        <div className="jersey-details-page">
+            <div className="jersey-details-container">
+                {priceDropMessage && (
+                    <div className="price-drop-alert">
+                        <strong>{priceDropMessage}</strong>
+                    </div>
+                )}
+                {alertMessage && (
+                    <NotificationCard 
+                        message={alertMessage} 
+                        onClose={handleCloseNotification} 
+                    />
+                )}
+
+                <div className="details-layout">
+                    {/* Return Button on the left side */}
+                    <button className="return-button" onClick={() => navigate('/jerseys')}>
+                        <div className="button-box">
+                            <span className="button-elem">
+                                <svg viewBox="0 0 46 40" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3 .8 4.4-.3l16-17c .5-.5 .8-1 .8-1 .9z"></path>
+                                </svg>
+                            </span>
+                            <span className="button-elem">
+                                <svg viewBox="0 0 46 40">
+                                    <path d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3 .8 4.4-.3l16-17c .5-.5 .8-1 .8-1 .9z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </button>
+
+                    {/* Image Carousel */}
+                    <div className="image-carousel">
+                        {jersey.images && jersey.images.length > 0 ? (
+                            <Slider {...settings}>
+                                {jersey.images.map((image, index) => (
+                                    <div key={index}>
+                                        <img
+                                            src={`http://localhost:8000${image.image_path}`}
+                                            alt={jersey.team}
+                                            className="jersey-image"
+                                        />
+                                    </div>
+                                ))}
+                            </Slider>
+                        ) : (
+                            <p>No images available.</p>
+                        )}
+                    </div>
+
+                    {/* Jersey Info */}
+                    <div className="jersey-info">
+                        <h1 className="jersey-name">{jersey.team} - {jersey.brand} ({jersey.season})</h1>
+                        <p className="jersey-description">{jersey.description || "Description not available."}</p>
+
+                        <div className="size-price-heart-container">
+                            {processedSizes.length > 0 ? (
+                                <div className="jersey-sizes">
+                                    <strong>Available Sizes: </strong>
+                                    {processedSizes.join(', ')}
+                                </div>
+                            ) : (
+                                <p>Sizes not available.</p>
+                            )}
+                            <div className="price-heart-container">
+                                <p className="jersey-price">Price: £{jersey.price || "Price not available."}</p>
+                                <Heart
+                                    jerseyId={jersey.id}
+                                    initialLikedState={isLiked}
+                                    onToggleLike={handleToggleLike}
+                                    isAuthenticated={isAuthenticated}
                                 />
                             </div>
-                        ))}
-                    </Slider>
-                ) : (
-                    <p>No images available.</p>
-                )}
-            </div>
-            <h1 className="jersey-name">{jersey.team} - {jersey.brand} ({jersey.season})</h1>
+                        </div>
 
-            {/* Jersey description */}
-            <p className="jersey-description">{jersey.description || "Description not available."}</p>
-
-            {/* New container for sizes, price, and heart */}
-            <div className="size-price-heart-container">
-                {/* Available sizes */}
-                {processedSizes.length > 0 ? (
-                    <div className="jersey-sizes">
-                        <strong>Available Sizes: </strong>
-                        {processedSizes.join(', ')}
+                        {jersey.original_url && jersey.original_url.startsWith('http') ? (
+                            <button 
+                                className="nike-button" 
+                                style={{ "--clr": "#7808d0" }} 
+                                onClick={() => window.open(jersey.original_url, '_blank')}
+                            >
+                                <span className="nike-button__icon-wrapper">
+                                    <svg
+                                        viewBox="0 0 14 15"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="button__icon-svg"
+                                        width="10"
+                                    >
+                                        <path
+                                            d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z"
+                                            fill="currentColor"
+                                        ></path>
+                                    </svg>
+                                </span>
+                                View on Nike.com
+                            </button>
+                        ) : (
+                            <p>No purchase link available.</p>
+                        )}
                     </div>
-                ) : (
-                    <p>Sizes not available.</p>
+                </div>
+
+                {lastPrice && (
+                    <PriceTracker 
+                        priceData={priceData} 
+                        lastPrice={lastPrice} 
+                    />
                 )}
 
-                {/* Price and Heart */}
-                <div className="price-heart-container">
-                    <p className="jersey-price">Price: £{jersey.price || "Price not available."}</p>
-                    <Heart
-                        jerseyId={jersey.id}
-                        isLiked={isLiked}
-                        onToggleLike={handleToggleLike}
-                        isAuthenticated={isAuthenticated}
-                    />
-                </div>
+                {/* Temporary Button */}
+                <button onClick={handleTemporaryButtonClick} className="temp-button">
+                    {temporaryButtonText}
+                </button>
+                
             </div>
-
-            {/* Set Price Alert Button */}
-            {isAuthenticated && (
-                <button onClick={handleSetAlert}>Set Price Alert</button>
-            )}
-
-            {/* View on Nike button with validation */}
-            {jersey.original_url && jersey.original_url.startsWith('http') ? (
-                <a
-                    href={jersey.original_url}
-                    className="nike-button"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    View on Nike
-                </a>
-            ) : (
-                <a
-                    href="https://www.nike.com"
-                    className="nike-button"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    View on Nike (Default)
-                </a>
-            )}
-
-            {priceData.length > 0 ? (
-                <PriceTracker priceData={priceData} />
-            ) : (
-                <div>No price data available.</div>
-            )}
         </div>
-    );
+    );      
 }
 
 export default JerseyDetail;

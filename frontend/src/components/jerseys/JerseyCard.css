@@ -1,6 +1,6 @@
 .jersey-card {
-  width: 500px; /* Fixed width */
-  height: 304px; /* Fixed height */
+  width: 500px;
+  height: 304px;
   border-radius: 30px;
   background: rgba(171, 129, 205, 0.5);
   -webkit-backdrop-filter: blur(10px);
@@ -9,16 +9,16 @@
   margin: 10px;
   box-shadow: 15px 15px 30px rgb(25, 25, 25),
               -15px -15px 30px rgb(55, 16, 84);
-  display: flex; /* Enable flexbox for better layout */
-  flex-direction: column; /* Stack image and text vertically */
-  justify-content: space-between; /* Space between items */
-  text-align: center; /* Center text */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
 }
 
 .jersey-image {
-  width: 100%; /* Full width of the card */
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 30px 30px 0 0; /* Rounded corners for the top */
+  width: 100%;
+  height: auto;
+  border-radius: 30px 30px 0 0;
 }
 
 .jersey-details {
@@ -32,13 +32,12 @@
 
 .price {
   font-size: 1rem;
-  color: #ffff; /* White color */
+  color: #ffff;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .jersey-card {
-    width: 100%; /* Allow full width on smaller screens */
-    height: auto; /* Let height adjust based on content */
+    width: 100%;
+    height: auto;
   }
 }

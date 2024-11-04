@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../Layout'; // Ensure Layout wraps the content
+import Layout from '../Layout';
 import Filter from './Filter';
-import Heart from './Heart'; // Updated import to Heart
+import Heart from './Heart';
 import './JerseyList.css';
 
-// Define a fallback image path
-const FALLBACK_IMAGE_PATH = '/path/to/fallback/image.png'; // Update this to your actual fallback image path
 
 const JerseyList = () => {
     const [jerseys, setJerseys] = useState([]);
     const [filteredJerseys, setFilteredJerseys] = useState([]);
     const [filters, setFilters] = useState({ team: [], country: [], color: [], price: [] });
-    const [likedJerseys, setLikedJerseys] = useState([]); // State to manage liked jerseys
+    const [likedJerseys, setLikedJerseys] = useState([]); 
     const [error, setError] = useState(null);
 
     // Fetch jerseys from the API

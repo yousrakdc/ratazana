@@ -2,53 +2,50 @@
   display: flex;
 }
 
-/* Sidebar for the filter */
 .filter-sidebar {
-  width: 250px;
-  border-right: 1px solid #ccc;
-  padding: 20px; 
+  width: 200px;
+  border-right: 1px solid #cdbbff;
+  padding: 10px; 
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Main container for jerseys */
 .jersey-list-container {
   flex-grow: 1;
   padding: 20px;
 }
 
-/* General styling for jersey list */
 .jersey-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
 }
 
-/* Each jersey item */
 .jersey-item {
-  border: 1px solid #ccc;
+  border: 1px solid #cdbbff;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   text-align: center;
   transition: transform 0.2s;
-  position: relative; /* Position for image wrapper */
-  overflow: hidden; /* Hide overflow */
+  position: relative;
+  overflow: hidden;
 }
 
 .jersey-item:hover {
   transform: scale(1.05);
 }
 
-/* Image wrapper for hover effect */
 .image-wrapper {
   position: relative;
-  height: 400px; /* Set a fixed height for consistency */
-  overflow: hidden; /* Hide overflow */
+  height: 350px;
+  overflow: hidden;
 }
 
 .jersey-image {
   width: 100%;
-  height: auto;
-  transition: opacity 0.5s ease-in-out; /* Transition for opacity */
+  height: 100%;
+  min-height: 350px;
+  object-fit: cover;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .hover-image {
@@ -56,27 +53,39 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: auto;
-  opacity: 0; /* Initially hidden */
-  transition: opacity 0.5s ease-in-out; /* Transition for opacity */
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .image-wrapper:hover .jersey-image {
-  opacity: 0; /* Fade out the first image */
+  opacity: 0;
 }
 
 .image-wrapper:hover .hover-image {
-  opacity: 1; /* Fade in the second image */
+  opacity: 1;
 }
 
 .price-container {
-  display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Center items vertically */
-  font-size: 1.2rem; /* Keep this for the heart icon alignment */
+  display: block;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 
-/* Styling for jersey price */
 .jersey-price {
-  margin-right: 75px; /* Space between the price and the heart icon */
-  font-size: 1rem; /* Change the font size to make it smaller */
+  font-size: 1.2rem;
+  margin-right: 10px;
+  text-align: left;
+}
+
+.heart-icon {
+  font-size: 0.9rem;
+  display: block;
+  align-items: right;
+}
+
+.jersey-team-name {
+  margin-top: 10px;
+  font-size: 1.2rem;
 }

@@ -2,67 +2,108 @@
 .filter-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 10px 20px;
+    gap: 1px;
+    padding: 10px;
+    border-radius: 17px;
 }
 
 /* Filter categories (e.g., Team, Country, etc.) */
 .filter-category {
-    margin-bottom: 20px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eaeaea;
 }
 
 .filter-category h4 {
     cursor: pointer;
-    color: #333;
-    padding: 10px;
-    background-color: #f4f4f4;
-    border-radius: 5px; 
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 15px;
+    transition: background-color 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-category h4:hover {
+    background-color: #8b83e8;
+}
+
+.filter-category h4::after {
+    content: '\25BC';
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.filter-category h4.active::after {
+    transform: rotate(-180deg);
 }
 
 /* Filter options that toggle visibility */
 .filter-options {
-    margin-top: 10px;
-    padding-left: 15px;
-    display: flex;
+    margin-top: 8px;
+    padding-left: 12px;
+    display: none;
     flex-direction: column;
+    gap: 8px;
 }
 
 /* Style each filter checkbox label */
 .filter-options label {
     display: flex; 
     align-items: center;
-    margin-bottom: 5px;
+    cursor: pointer;
+    color: #ffffff;
 }
 
 /* Checkbox styling */
 .filter-options input[type="checkbox"] {
-    margin-right: 10px;
+    margin-right: 8px;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+.filter-options input[type="checkbox"]:checked {
+    background-color: #ffffff;
+    position: relative;
+}
+
+.filter-options input[type="checkbox"]:checked::after {
+    content: '\2713';
+    position: absolute;
+    color: rgba(153,118,236,0.5);
+    font-size: 14px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Checkbox visibility */
 .filter-options.active {
-    display: block;
-}
-
-.filter-options {
-    display: none;
+    display: flex;
 }
 
 /* Additional styling for a better layout */
-.filter-sidebar {
-    padding: 20px;
-    border-right: 1px solid #ccc;
-}
-
 .filter-buttons {
-    margin-top: 20px;
+    margin-top: 1px;
     display: flex;
     justify-content: space-between;
 }
 
 .filter-buttons button {
-    padding: 8px 16px;
+    padding: 8px 12px;
     border: none;
-    border-radius: 4px;
+    border-radius: 15px;
     cursor: pointer;
+    background-color: rgba(255,255,255,0.2);
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+    
+}
+
+.filter-buttons button:hover {
+    background-color: rgba(226, 171, 252, 0.082);
 }

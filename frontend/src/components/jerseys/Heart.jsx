@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import jwtDecode from "jwt-decode"; // Ensure this package is installed with `npm install jwt-decode`
+import jwtDecode from "jwt-decode";
+import NotificationCard from "../alert/NotificationCard";
 
-// Function to get CSRF token from cookies (if needed)
+// Function to get CSRF token from cookies
 const getCookie = (name) => {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -53,17 +54,25 @@ const refreshAuthToken = async () => {
 const Heart = ({ jerseyId, initialLikedState, isAuthenticated }) => {
     const [liked, setLiked] = useState(initialLikedState);
     const [authToken, setAuthToken] = useState(localStorage.getItem("authToken"));
+    const [alertMessage, setAlertMessage] = useState(null); // State for notification message
     const csrfToken = getCookie("csrftoken");
 
+    // Function to check if a token is expired
     const isTokenExpired = (token) => {
         if (!token) return true;
         const decodedToken = jwtDecode(token);
         return decodedToken.exp < Date.now() / 1000;
     };
 
+    // Load liked state from local storage on mount
     useEffect(() => {
-        setLiked(initialLikedState);
-    }, [initialLikedState]);
+        const storedLikedState = localStorage.getItem(`jersey_${jerseyId}_liked`);
+        if (storedLikedState !== null) {
+            setLiked(storedLikedState === 'true'); // Convert string to boolean
+        } else {
+            setLiked(initialLikedState); // Fallback to initial state if not found in local storage
+        }
+    }, [jerseyId, initialLikedState]);
 
     const ensureValidAuthToken = async () => {
         if (isTokenExpired(authToken)) {
@@ -89,8 +98,9 @@ const Heart = ({ jerseyId, initialLikedState, isAuthenticated }) => {
         const validAuthToken = await ensureValidAuthToken();
         if (!validAuthToken) return;
 
-        const newLikedState = !liked;  // Toggle the liked state
+        const newLikedState = !liked; // Toggle the liked state
         setLiked(newLikedState); // Update the state immediately
+        localStorage.setItem(`jersey_${jerseyId}_liked`, newLikedState); // Store the new state in local storage
 
         try {
             const url = `http://localhost:8000/api/jerseys/${jerseyId}/likes/`;
@@ -112,7 +122,14 @@ const Heart = ({ jerseyId, initialLikedState, isAuthenticated }) => {
                 throw new Error("Failed to update like");
             }
 
-            console.log(`Jersey ${jerseyId} is now ${newLikedState ? "liked" : "unliked"}.`);
+            // Set alert message based on the action
+            const message = `Jersey ${jerseyId} is now ${newLikedState ? "liked" : "unliked"}.`;
+            setAlertMessage(message);
+
+            // Clear the alert after 3 seconds
+            setTimeout(() => {
+                setAlertMessage(null);
+            }, 3000);
         } catch (error) {
             console.error("Error updating like:", error);
             alert("An error occurred while trying to like/unlike the jersey.");
@@ -140,19 +157,22 @@ const Heart = ({ jerseyId, initialLikedState, isAuthenticated }) => {
                     </svg>
                 </div>
             </div>
+            {alertMessage && (
+                <NotificationCard message={alertMessage} onClose={() => setAlertMessage(null)} />
+            )}
         </StyledWrapper>
     );
 };
 
 const StyledWrapper = styled.div`
     .heart-container {
-        cursor: pointer; /* Change cursor to pointer to indicate clickability */
-        display: inline-flex; /* Align heart properly */
+        cursor: pointer; 
+        display: inline-flex; 
     }
 
     .svg-container {
-        width: 25px; /* Adjust size as needed */
-        height: 25px; /* Adjust size as needed */
+        width: 25px;
+        height: 25px;
     }
 
     .svg-outline,

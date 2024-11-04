@@ -1,6 +1,6 @@
-.jersey-details-container {
-    max-width: 1200px;
-    margin: 20px auto;
+.jersey-details-page {
+    max-width: 2000px;
+    margin: 30px auto;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -9,72 +9,265 @@
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     border: 1px solid rgba(67, 62, 238, 0.075);
+}
+
+.jersey-details-page .price-drop-alert {
+    background-color: #3f1477;
+    color: #fffefe;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
     text-align: center;
+    font-size: 1.1em;
 }
 
-.jersey-name {
-    font-size: 2.5rem;
-    color: #ffffff;
-    margin-bottom: 20px;
-    font-weight: bold;
+.jersey-details-page .jersey-details-container {
+    display: flex;
+    flex-direction: column;
 }
 
-.image-carousel {
-    margin-bottom: 20px;
-}
-
-.jersey-image {
+.jersey-details-page .details-layout {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
     width: 100%;
-    height: 400px;
+}
+
+.jersey-details-page .image-carousel {
+    flex: 1;
+    max-width: 45%;
+}
+
+.jersey-details-page .jersey-image {
+    width: 100%;
+    height: 600px;
     object-fit: cover;
     border-radius: 8px;
 }
 
-.jersey-description {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    color: #fdfdfd;
+.jersey-details-page .jersey-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.price-heart-container {
+.jersey-details-page .jersey-name {
+    font-size: 2.5rem;
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.jersey-details-page .jersey-description {
+    font-size: 1.3rem;
+    color: #fdfdfd;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.jersey-details-page .size-price-heart-container {
+    display: block;
+    justify-content: space-around;
+    align-items: left;
+    margin-top: auto;
+}
+
+.jersey-details-page .jersey-sizes {
+    font-size: 22px;
+    text-align: left;
+}
+
+.jersey-details-page .price-heart-container {
     display: flex;
     align-items: center;
 }
 
-.jersey-price {
-    margin-right: 10px;
+.jersey-details-page .jersey-price {
+    font-size: 28px;
+    margin-right: 15px;
 }
 
-.nike-button {
-    background-color:#37066c; /* Nike's signature black */
-    color: white;
-    padding: 10px 20px;
+.jersey-details-page .nike-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    display: inline-block;
+    border: none;
+    cursor: pointer;
+    background-color: var(--clr);
+    color: #fff;
+    border-radius: 10rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.3s;
     margin-top: 20px;
-    transition: background-color 0.3s ease;
+    width: 100%;
+    height: 50px;
 }
 
-.nike-button:hover {
-    background-color: #0e005d ; /* Change on hover */
+.jersey-details-page .nike-button__icon-wrapper {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    color: var(--clr);
+    background-color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+.jersey-details-page .nike-button:hover {
+    background-color: #000;
+}
 
-/* Responsive Design */
+.jersey-details-page .nike-button:hover .nike-button__icon-wrapper {
+    color: #000;
+}
+
+.jersey-details-page .nike-button:hover .button__icon-svg {
+    transition: transform 0.3s ease-in-out;
+    transform: translate(150%, -150%);
+}
+
+.jersey-details-page .nike-button__icon-wrapper svg {
+    width: 60%;
+    height: 60%;
+}
+
+.jersey-details-page .button__icon-svg {
+   transition: transform 0.3s ease-in-out;
+}
+
+.jersey-details-page .temp-button {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color: #3f1477;
+    color: #ffffff;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.jersey-details-page .temp-button:hover {
+    background-color: #4a1a8f;
+}
+
+.jersey-details-page .temp-button:active {
+    background-color: #2f0f5c;
+}
+
 @media (max-width: 768px) {
-    .jersey-name {
+    .jersey-details-page .details-layout {
+        flex-direction: column;
+    }
+
+    .jersey-details-page .image-carousel {
+        max-width: 100%;
+    }
+
+    .jersey-details-page .jersey-name {
         font-size: 2rem;
     }
 
-    .jersey-price {
+    .jersey-details-page .jersey-price {
         font-size: 1.8rem;
     }
 
-    .nike-button {
-        font-size: 1.1rem;
+    .jersey-details-page .nike-button {
+        font-size: 1rem;
+        align-self: center;
     }
 }
 
+.jersey-details-page .return-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    left: -80px;
+    z-index: 10;
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0;
+    overflow: hidden;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+}
+
+.jersey-details-page .return-button:before,
+.jersey-details-page .return-button:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    inset: 7px;
+}
+
+.jersey-details-page .return-button:before {
+    border: 4px solid #f0eeef;
+    transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
+        transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
+}
+
+.jersey-details-page .return-button:after {
+    border: 4px solid #bb96f0;
+    transform: scale(1.3);
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+}
+
+.jersey-details-page .return-button:hover:before,
+.jersey-details-page .return-button:focus:before {
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.jersey-details-page .return-button:hover:after,
+.jersey-details-page .return-button:focus:after {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
+        transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
+}
+
+.jersey-details-page .button-box {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.jersey-details-page .button-elem {
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: 17px 18px 0 18px;
+    transform: rotate(180deg);
+    fill: #f0eeef;
+}
+
+.jersey-details-page .return-button:hover .button-box,
+.jersey-details-page .return-button:focus .button-box {
+    transition: 0.4s;
+    transform: translateX(-56px);
+}
+
+.jersey-details-page .image-carousel-container {
+    position: relative;
+    flex: 1;
+    max-width: 50%;
+}

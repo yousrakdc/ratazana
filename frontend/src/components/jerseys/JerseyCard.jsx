@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Heart from "./Heart"; // Ensure this path is correct
+import Heart from "./Heart"; 
 import './JerseyCard.css';
 
 const JerseyCard = ({ jersey }) => {
@@ -8,7 +8,7 @@ const JerseyCard = ({ jersey }) => {
     // Check local storage to see if this jersey is liked
     useEffect(() => {
         const likedJerseys = JSON.parse(localStorage.getItem("likedJerseys")) || [];
-        setLiked(likedJerseys.includes(jersey.id)); // Assuming jersey has an 'id' property
+        setLiked(likedJerseys.includes(jersey.id)); 
     }, [jersey.id]);
 
     // Handle toggling the like status
