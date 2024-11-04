@@ -13,4 +13,4 @@
   NODE_ENV = "production"
 
 [context.production]
-  command = "npm install && npm run build --prefix frontend"
+  command = "npm install && npm run build"
