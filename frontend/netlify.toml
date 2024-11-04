@@ -1,4 +1,7 @@
 [build]
   base = "frontend"
   command = "npm ci && npx vite build"
-  publish = "dist"
+  publish = "frontend/dist"
+
+[context.production.environment]
+  NODE_VERSION = "20" # Specify the Node.js version you need
