@@ -4,12 +4,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    historyApiFallback: true,  // Fallback to index.html for all routes
+    historyApiFallback: true, // Fallback to index.html for all routes
   },
   build: {
-    outDir: 'build',  // Set the correct output directory for production
-    rollupOptions: {
-      external: ['react-router-dom'],  // Mark react-router-dom as external
+    outDir: 'build', // Set the correct output directory for production
+    commonjsOptions: {
+      include: [/node_modules/], // Ensure compatibility with commonjs modules
     },
   },
 });
