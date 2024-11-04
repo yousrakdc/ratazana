@@ -1,0 +1,29 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore database files
+*.db
+*.rdb
+db.sqlite3
+
+# Ignore temporary files
+backend/cookie.txt
+backend/settings.py
+backend/core/management/commands/credentials.json
+backend/core/token.json
+
+# Ignore virtual environments
+new_venv/
+
+# Ignore static files and builds
+staticfiles/
+dist/
+public.*
+
+# Ignore Django-related files
+django_errors.log
+get-pip.py
+
+# Ignore backups
+backend/db_backup.json
+backend/backup.sql
