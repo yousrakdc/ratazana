@@ -1,5 +1,4 @@
 [build]
-  base = "frontend"
   command = "npm ci && npx vite build"
   publish = "frontend/dist"
 
