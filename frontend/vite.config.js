@@ -7,7 +7,7 @@ export default defineConfig({
     historyApiFallback: true, // Fallback to index.html for all routes
   },
   build: {
-    outDir: 'build', // Set the correct output directory for production
+    outDir: 'dist', // Set the correct output directory for production
     commonjsOptions: {
       include: [/node_modules/], // Ensure compatibility with commonjs modules
     },
