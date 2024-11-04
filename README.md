@@ -1,6 +1,6 @@
 # Ratazana
 
-Ratazana is a web application designed for sports enthusiasts, particularly fans of Nike jerseys. It offers users the ability to browse, like, and track prices of various jerseys, providing an intuitive interface for discovering and managing their favorite sports apparel.
+Ratazana is a web application designed for sports enthusiasts, particularly fans of football jerseys. It offers users the ability to browse, like, and track prices of various jerseys, providing an intuitive interface for discovering and managing their favorite jerseys.
 
 ## Features
 
