@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci && npm install -g vite && npm run build"
+  command = "npm ci && npm install vite @vitejs/plugin-react && npm run build"
   publish = "dist"
 
 [context.production.environment]
