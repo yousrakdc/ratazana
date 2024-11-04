@@ -1,6 +1,12 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+import smtplib
+import google.auth
+import google.auth.transport.requests
+from google.oauth2.credentials import Credentials
+from email.mime.text import MIMEText
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-h*xn@&1y0z&37k0=matdxg^p*ano4m7rl-jpqseg$d-6!w(^m%'
 DEBUG = True
-ALLOWED_HOSTS = []  # Localhost
+ALLOWED_HOSTS = ['c347-77-136-104-119.ngrok-free.app', '127.0.0.1', 'localhost']  # Localhost
 
 # Application definition
 INSTALLED_APPS = [
@@ -72,10 +78,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('access',),
-    'AUTH_USER_MODEL' : 'core.CustomUser',
-
+    'AUTH_TOKEN_CLASSES': (
+        'rest_framework_simplejwt.tokens.AccessToken',  # Updated line
+        'rest_framework_simplejwt.tokens.RefreshToken',  # Keep refresh token if you need it
+    ),
+    'AUTH_USER_MODEL': 'core.CustomUser',
 }
+
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
@@ -137,12 +146,17 @@ ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 # Use Django's password validators
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_HOST_USER = 'ratazana.staff@gmail.com'
+EMAIL_HOST_PASSWORD = 'RatRat3184!'
+DEFAULT_FROM_EMAIL = 'ratazana.staff@gmail.com'
+
+EMAIL_BACKEND = 'anymail.backends.sendgrid.EmailBackend'
+ANYMAIL = {}
+DEFAULT_FROM_EMAIL = 'ratazana.staff@gmail.com'
 
 # Database configuration
 DATABASES = {
@@ -203,3 +217,40 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
 INTERNAL_IPS = [
     '0.0.0.1',
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+  
+        'ratazana': { 
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Redis as the broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+ELERY_TIMEZONE = 'UTC'
+CELERY_IMPORTS = ('backend.core.tasks',)
+
+
+# Optional: This will enable periodic tasks with the celery beat
+CELERY_BEAT_SCHEDULE = {
+    'scrape-jerseys-every-hour': {
+        'task': 'core.tasks.scrape_jerseys',
+        'schedule': 3600.0,  # Schedule the task to run every hour (3600 seconds)
+    },
+}
