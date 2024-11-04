@@ -5,11 +5,10 @@ import JerseyList from './components/jerseys/JerseyList';
 import SignInForm from './components/auth/SignInForm';
 import SignUpForm from './components/auth/SignUpForm';
 import LandingPage from './components/landing_page/LandingPage';
-import LikedJerseys from "./components/jerseys/LikedJerseys"; 
+import LikedJerseys from './components/jerseys/LikedJerseys';
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
-        // Load the initial state from local storage
         const storedLoginState = localStorage.getItem('isLoggedIn');
         return storedLoginState ? JSON.parse(storedLoginState) : false;
     });
@@ -31,7 +30,7 @@ const App = () => {
     };
 
     const checkLoginStatus = async () => {
-        console.log('Sending check-login request...'); // Debugging line
+        console.log('Sending check-login request...');
         try {
             const response = await fetch('http://localhost:8000/auth/check-login/', {
                 method: 'GET',
@@ -41,33 +40,32 @@ const App = () => {
                 },
             });
 
-            console.log('Response status:', response.status); // Log response status
-            const data = await response.json(); // Parse response here
-            console.log('API Response:', data); // Log the entire response
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('API Response:', data);
 
             if (response.ok) {
-                setIsLoggedIn(data.isLoggedIn); // Update login state
-                localStorage.setItem('isLoggedIn', data.isLoggedIn); // Persist login state
-                console.log('Set isLoggedIn to:', data.isLoggedIn); // Confirm what state is set
+                setIsLoggedIn(data.isLoggedIn);
+                localStorage.setItem('isLoggedIn', data.isLoggedIn);
+                console.log('Set isLoggedIn to:', data.isLoggedIn);
             } else {
                 console.error('Failed to check login status:', response.status);
             }
         } catch (error) {
             console.error('Error fetching login status:', error);
         } finally {
-            setLoading(false); // Set loading to false after check
+            setLoading(false);
         }
     };
 
-    // Effect to check login status on mount
     useEffect(() => {
-        console.log('Calling checkLoginStatus on mount...'); // Debugging line
-        checkLoginStatus(); // Call checkLoginStatus on mount
+        console.log('Calling checkLoginStatus on mount...');
+        checkLoginStatus();
     }, []);
 
     const handleLogin = () => {
-        setIsLoggedIn(true); // Set login state to true
-        localStorage.setItem('isLoggedIn', true); // Persist login state
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', true);
         console.log('User logged in:', true);
     };
 
@@ -83,8 +81,8 @@ const App = () => {
             });
 
             if (response.ok) {
-                setIsLoggedIn(false); // Update state to reflect logout
-                localStorage.removeItem('isLoggedIn'); // Remove login state from local storage
+                setIsLoggedIn(false);
+                localStorage.removeItem('isLoggedIn');
                 console.log('User logged out successfully');
             } else {
                 console.error('Failed to log out:', response.status);
@@ -98,9 +96,6 @@ const App = () => {
         return <div>Loading...</div>;
     }
 
-    // Log the value of isLoggedIn before rendering
-    console.log('App isLoggedIn before rendering:', isLoggedIn);
-
     return (
         <Router>
             <Layout isLoggedIn={isLoggedIn} onLogout={handleLogout}>
@@ -109,7 +104,10 @@ const App = () => {
                     <Route path="/signup" element={<SignUpForm onLogin={handleLogin} />} />
                     <Route path="/login" element={<SignInForm onLogin={handleLogin} />} />
                     <Route path="/jerseys" element={<JerseyList />} />
-                    <Route path="/liked-jerseys" component={LikedJerseys} />
+                    <Route
+                        path="/liked-jerseys"
+                        element={isLoggedIn ? <LikedJerseys /> : <Navigate to="/login" />}
+                    />
                 </Routes>
             </Layout>
         </Router>
