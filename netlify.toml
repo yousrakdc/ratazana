@@ -1,7 +1,8 @@
 [build]
-  base = "frontend/"
-  publish = "frontend/build"
-  command = "npm install && npm run build"
+  base = "ratazana/"
+  publish = "frontend/public"
+  command = "npm install && npm install --prefix frontend && npm run build --prefix frontend"
+
 
 [build.environment]
   NODE_ENV = "production"
