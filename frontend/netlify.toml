@@ -1,0 +1,16 @@
+[build]
+  # This should point to the directory where the `package.json` file is located
+  base = "frontend"  # Change this to point directly to the frontend directory
+
+  # The directory that contains the deploy-ready HTML files and assets
+  publish = "frontend/public"  # Correct path to your publish directory
+
+  # The build command that Netlify runs
+  command = "npm install && npm run build"  # Simplified command
+
+
+[build.environment]
+  NODE_ENV = "production"
+
+[context.production]
+  command = "npm install && npm run build --prefix frontend"
