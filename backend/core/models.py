@@ -91,8 +91,6 @@ class Jersey(models.Model):
         self.price = new_price               
         self.save()                          
 
-
-
     def notify_price_drop(self, new_price):
         alerts = Alert.objects.filter(jersey=self, status='active', alert_type='price_drop')
         for alert in alerts:

@@ -12,10 +12,8 @@ from email.mime.text import MIMEText
 import os
 from django.db import transaction
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Define the base directory for file path management
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Path to the OAuth2 token for Gmail API
@@ -129,7 +127,7 @@ def send_email_notification(email, jersey_id, new_price):
         logger.error(f"Failed to send email: {str(e)}")
 
 @shared_task(name='core.tasks.check_prices_and_notify')
-def check_prices_and_notify(jersey_id):  # Ensure it accepts the jersey_id parameter
+def check_prices_and_notify(jersey_id):  
     try:
         # Fetch the jersey by its ID
         jersey = Jersey.objects.get(id=jersey_id)
