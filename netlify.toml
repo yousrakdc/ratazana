@@ -1,0 +1,10 @@
+[build]
+  base = "frontend/"
+  publish = "frontend/build"
+  command = "npm install && npm run build"
+
+[build.environment]
+  NODE_ENV = "production"
+
+[context.production]
+  command = "npm install && npm run build --prefix frontend"
