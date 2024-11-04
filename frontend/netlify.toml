@@ -1,8 +1,7 @@
 [build]
-  base = "frontend" 
-  command = "npm install --prefix frontend && npm run build --prefix frontend"
-  publish = "frontend/public"  # Adjust according to your build output
-
+  base = "frontend"
+  command = "npm install --prefix . && npm run build --prefix ."
+  publish = "public"  # Assuming 'public' is the output directory of your build
 
 [build.environment]
   NODE_ENV = "production"
