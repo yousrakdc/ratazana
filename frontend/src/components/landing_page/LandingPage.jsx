@@ -8,18 +8,17 @@ import '../jerseys/JerseyCard.css';
 const LandingPage = () => {
   return (
     <div className="landing-page">
-      {/* Promoted Jerseys Section */}
+
       <section className="promoted-section">
+        <h2> Hot & cheap</h2>
         <PromotedJerseys />
       </section>
 
-      {/* New Releases Section (Carousel) */}
       <section className="new-releases-section">
-        <h2>New Releases</h2>
+        <h2>New In!</h2>
         <NewReleases />
       </section>
 
-      {/* Upcoming Jerseys Section (Carousel) */}
       <section className="upcoming-section">
         <h2>Worth the wait...</h2>
         <UpcomingJerseys />

@@ -1,0 +1,137 @@
+.slick-slider {
+  width: 100%;
+}
+
+.slick-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.jerseyCard {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1000px;
+  height: 450px;
+  border-radius: 20px;
+  margin: 10px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.jerseyCard:hover {
+  transform: scale(1.05);
+}
+
+.jerseyContent {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  background: rgba(171, 129, 205, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(171, 129, 205, 0.25);
+}
+
+.imageWrapper {
+  position: relative;
+  height: 100%;
+  width: 50%;
+  overflow: hidden;
+  border-radius: 20px 0 0 20px;
+}
+
+.jerseyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.hoverImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.imageWrapper:hover .jerseyImage {
+  opacity: 0;
+}
+
+.imageWrapper:hover .hoverImage {
+  opacity: 1;
+}
+
+.jerseyDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  width: 50%;
+  border-radius: 0 20px 20px 0;
+  color: #ffffff;
+  text-align: left;
+}
+
+.jerseyTeamName {
+  font-size: 2.3rem;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.price {
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+
+.buttonLink {
+  text-decoration: none;
+}
+
+.viewButton {
+  font-size: 17px;
+  margin-top: 100px;;
+  padding: 10px 25px;
+  border-radius: 0.7rem;
+  background-image: linear-gradient(rgb(214, 202, 254), rgb(158, 129, 254));
+  border: 2px solid rgb(50, 50, 50);
+  border-bottom: 5px solid rgb(50, 50, 50);
+  box-shadow: 0px 1px 6px 0px rgb(196, 129, 254);
+  transform: translate(0, -3px);
+  cursor: pointer;
+  transition: 0.2s;
+  transition-timing-function: linear;
+  color: rgb(50, 50, 50);
+  font-weight: bold;
+}
+
+.viewButton:active {
+  transform: translate(0, 0);
+  border-bottom: 2px solid rgb(50, 50, 50);
+}
+
+@media (max-width: 768px) {
+  .jerseyCard {
+    flex-direction: column;
+    width: 90%;
+    height: auto;
+    max-width: 400px;
+  }
+  .imageWrapper {
+    height: 300px;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+  }
+  .jerseyDetails {
+    width: 100%;
+    text-align: center;
+    align-items: center;
+  }
+}

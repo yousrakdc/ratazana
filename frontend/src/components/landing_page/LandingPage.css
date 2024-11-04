@@ -5,6 +5,8 @@
 /* Section styles */
 .promoted-section, .new-releases-section, .upcoming-section {
   padding: 2rem 1rem;
+  font-size: 30px;
+  margin-top: -50px;
 }
 
 /* Jersey Card Styles */
