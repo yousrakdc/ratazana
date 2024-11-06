@@ -10,7 +10,7 @@ const LandingPage = () => {
     <div className="landing-page">
 
       <section className="promoted-section">
-        <h2> Hot & cheap</h2>
+        <h2> Don't miss out!</h2>
         <PromotedJerseys />
       </section>
 
