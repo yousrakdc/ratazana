@@ -38,15 +38,20 @@ function JerseyDetail() {
             },
             body: JSON.stringify({ refresh: refreshToken }),
         });
-
+    
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('authToken', data.access);
             return data.access;
         } else {
-            throw new Error('Unable to refresh token');
+            console.error('Unable to refresh token');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            setIsAuthenticated(false);
+            return null;
         }
     };
+    
 
     useEffect(() => {
         const fetchJersey = async () => {
