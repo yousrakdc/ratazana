@@ -38,6 +38,13 @@
   justify-content: center;
 }
 
+.slick-dots li button:before {
+  color: white;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+
 @media (max-width: 768px) {
   .promoted-jerseys {
       flex-direction: column;
