@@ -12,8 +12,10 @@ from email.mime.text import MIMEText
 import os
 from django.db import transaction
 
+# Set up logging
 logger = logging.getLogger(__name__)
 
+# Define the base directory for file path management
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Path to the OAuth2 token for Gmail API
@@ -164,8 +166,12 @@ def check_prices_and_notify(jersey_id):
 
 def notify_price_drop(user, jersey, current_price):
     """Notify user about the price drop of a liked jersey."""
-    logger.info(f"Triggering email for user: {user.email} for jersey: {jersey.id}")
-    send_email_notification.delay(user.email, jersey.id, current_price)
+    logger.info(f"Preparing to notify user: {user.email} for jersey: {jersey.id}")
+    try:
+        send_email_notification.delay(user.email, jersey.id, current_price)
+    except Exception as e:
+        logger.error(f"Failed to trigger email notification for {user.email}: {str(e)}")
+
 
 @shared_task(name='backend.core.tasks.scrape_jerseys')
 def scrape_jerseys():
