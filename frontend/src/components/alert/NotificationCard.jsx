@@ -4,7 +4,7 @@ import './NotificationCard.css';
 const NotificationCard = ({ message, onClose }) => {
     return (
         <div className="notification-container show">
-            <span className="notification-title">Oopsie...</span>
+            <span className="notification-title">Alert!</span>
             <div className="notification-text">{message}</div>
             <button className="close-button" onClick={onClose}>Close</button>
         </div>
