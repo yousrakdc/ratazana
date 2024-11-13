@@ -1,6 +1,9 @@
 .likedJerseysWrapper {
     padding: 20px;
     text-align: center;
+    font-family: 'Roboto Flex';
+    text-decoration: none m !important;
+    
 }
 
 .likedJerseysLoadingMessage {
@@ -17,17 +20,19 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
     gap: 10px;
     justify-content: center; 
+    text-decoration: none !important;
 }
 
 
 .likedJerseyItem {
-    border: 1px solid #ccc;
     border-radius: 8px;
     padding: 16px;
     text-align: center;
     transition: transform 0.2s;
     position: relative; 
     overflow: hidden;
+    font-family: 'Roboto Flex';
+    text-decoration: none !important;
 }
 
 .likedJerseyItem:hover {
@@ -38,6 +43,7 @@
     position: relative;
     height: 200px;
     overflow: hidden; 
+    text-decoration: none !important;
 }
 
 
@@ -46,6 +52,7 @@
     height: 100%; 
     object-fit: cover;
     transition: opacity 0.5s ease-in-out; 
+    
 }
 
 
@@ -53,8 +60,8 @@
     display: flex; 
     align-items: center; 
     font-size: 1.2rem; 
+    text-decoration: none;
 }
-
 
 .likedJerseyPrice {
     margin-right: 10px;
@@ -62,10 +69,14 @@
 }
 
 
+.likedJerseyItem a {
+    text-decoration: none !important;
+}
+
 .likedJerseyItem h2 {
-    text-decoration: none;
     margin: 10px 0;
 }
+
 
 .likedJerseyItem {
     border: 2px solid transparent;
