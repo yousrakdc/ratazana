@@ -111,7 +111,7 @@ const LikedJerseys = () => {
                                 <h2>{jersey.team}</h2>
                                 {jersey.priceChangeStatus === 'decreased' && (
                                     <p className={`${styles.priceChangeMessage} ${styles.decreased}`}>
-                                        Price dropped by {jersey.priceChangePercentage}%!
+                                        Good news! Price dropped by {jersey.priceChangePercentage}%!
                                     </p>
                                 )}
                             </Link>

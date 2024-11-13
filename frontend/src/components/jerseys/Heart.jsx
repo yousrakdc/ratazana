@@ -123,7 +123,9 @@ const Heart = ({ jerseyId, initialLikedState, isAuthenticated }) => {
             }
 
             // Set alert message based on the action
-            const message = `Jersey ${jerseyId} is now ${newLikedState ? "liked" : "unliked"}.`;
+            const message = newLikedState
+                ? "You've added this jersey to your liked collection!"
+                : "You've removed this jersey from your liked collection.";
             setAlertMessage(message);
 
             // Clear the alert after 3 seconds
